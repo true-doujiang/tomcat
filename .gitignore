@@ -1,0 +1,9 @@
+*.log
+*.swp
+
+.idea
+.xml
+target
+out
+.class
+.metadata
