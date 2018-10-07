@@ -1111,10 +1111,11 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * Initialize this connector (create ServerSocket here!)
      */
     public void initialize() throws LifecycleException {
-        if (initialized)
-            throw new LifecycleException (sm.getString("httpConnector.alreadyInitialized"));
+        if (initialized) {
+            throw new LifecycleException(sm.getString("httpConnector.alreadyInitialized"));
+        }
 
-        this.initialized=true;
+        this.initialized = true;
         Exception eRethrow = null;
 
         // Establish a server socket on the specified port
@@ -1140,7 +1141,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
             eRethrow = kme;
         }
 
-        if ( eRethrow != null )
+        if (eRethrow != null)
             throw new LifecycleException(threadName + ".open", eRethrow);
 
     }
@@ -1154,8 +1155,9 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
     public void start() throws LifecycleException {
 
         // Validate and update our current state
-        if (started)
+        if (started) {
             throw new LifecycleException(sm.getString("httpConnector.alreadyStarted"));
+        }
         threadName = "HttpConnector[" + port + "]";
         lifecycle.fireLifecycleEvent(START_EVENT, null);
         started = true;
@@ -1166,8 +1168,9 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
         // 创建HttpProcessor 并存入池子中
         // Create the specified minimum number of processors
         while (curProcessors < minProcessors) {
-            if ((maxProcessors > 0) && (curProcessors >= maxProcessors))
+            if ((maxProcessors > 0) && (curProcessors >= maxProcessors)) {
                 break;
+            }
             HttpProcessor processor = newProcessor();
             recycle(processor);
         }
@@ -1183,9 +1186,9 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
     public void stop() throws LifecycleException {
 
         // Validate and update our current state
-        if (!started)
-            throw new LifecycleException
-                (sm.getString("httpConnector.notStarted"));
+        if (!started) {
+            throw new LifecycleException(sm.getString("httpConnector.notStarted"));
+        }
         lifecycle.fireLifecycleEvent(STOP_EVENT, null);
         started = false;
 

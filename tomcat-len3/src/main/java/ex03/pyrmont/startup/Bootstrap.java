@@ -11,15 +11,15 @@ import ex03.pyrmont.connector.http.HttpConnector;
  * 连接器模块：
  * 		  连接器类 及其 支持类 HttpConnector、HttpProcessor
  * 		  表示HTTP请求的类    HttpRequest 及其支持类
- *       表示HTTP响应的类    HttpResponse 及其支持类
- *       外观类  HttpResponseFacade HttpRequestFacade
- *       常量类 Constants
+ *        表示HTTP响应的类    HttpResponse 及其支持类
+ *        外观类  HttpResponseFacade HttpRequestFacade
+ *        常量类 Constants
  * 核心模块：
  * 		 ServletProcess、StaticResourceProcess
  */
 public final class Bootstrap {
 
-	//java compiler 1.3  本工程用的1.3的编译器
+	//java compiler 1.4  本工程用的1.4的编译器
 	
 	
 	// servlet/PrimitiveServlet

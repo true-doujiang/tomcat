@@ -2,7 +2,6 @@ package test;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 
@@ -17,9 +16,11 @@ public class HttpServerTest {
         try {
             Socket socket = new Socket("127.0.0.1", 8080);
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-            out.println("GET /PrimitiveServlet;jsessionid=khdslah?username=uuu&info=18 HTTP/1.1");
+            out.println("GET /servlet/ModernServlet;jsessionid=khdslah?username=uuu&info=18 HTTP/1.1");
             out.println("Host: localhost:8080");
             out.println("Connection: Close");
+            out.println("content-length: 11");
+            out.println("content-type: text/html");
             out.println();
             out.println("name=yhh&age=18");
 

@@ -31,8 +31,9 @@ public class HttpProcessor {
     private HttpRequest request;
     private HttpResponse response;
 
-    protected String method = null;
-    protected String queryString = null;
+    //并没有用到
+//    protected String method = null;
+//    protected String queryString = null;
 
     protected StringManager sm = StringManager.getManager("ex03.pyrmont.connector.http");
 
@@ -42,6 +43,12 @@ public class HttpProcessor {
     }
     
     /**
+     * process()方法接收来自传入的HTTP请求的套接字。 并要完成4个动作
+     * 1.创建一个HttpRequest对象
+     * 2.创建一个HttpResponse对象
+     * 3.解析HTTP请求的第一行内容和请求头信息，填充HttpRequest对象
+     * 4.将HTTPRequest对象和HTTPResponse对象传递给servletProcessor或者StaticResourceProcessor的process()方法。
+     *
      * @param socket
      */
     public void process(Socket socket) {
@@ -91,7 +98,6 @@ public class HttpProcessor {
 
 
     /**
-     * 
      * @param input
      * @param output
      * @throws IOException
@@ -99,6 +105,8 @@ public class HttpProcessor {
      */
     private void parseRequest(SocketInputStream input, OutputStream output)
             						throws IOException, ServletException {
+
+        //调用readRequestLine()方法，使用SocketInputStream对象中的信息填充到HttpRequestLine实例
         // Parse the incoming request line
         input.readRequestLine(requestLine);
         
@@ -170,7 +178,7 @@ public class HttpProcessor {
 
         /*
          *  Normalize URI (using String operations at the moment)
-         *  修正URI
+         *  修正URI 例如，出现\的地方会被替换为 /
          */
         String normalizedUri = normalize(uri);
 
@@ -187,6 +195,7 @@ public class HttpProcessor {
             ((HttpRequest) request).setRequestURI(uri);
         }
 
+        // 抛异常
         if (normalizedUri == null) {
             throw new ServletException("Invalid URI: " + uri + "'");
         }
@@ -199,13 +208,16 @@ public class HttpProcessor {
      * @throws ServletException
      */
     private void parseHeaders(SocketInputStream input) throws IOException, ServletException {
+        //循环一次读一个请求头
         while (true) {
+
+
             HttpHeader header = new HttpHeader();
             ;
             // Read the next header
             input.readHeader(header);
             
-            //若没有请求头可以读取
+            //若没有请求头可以读取 则退出while
             if (header.nameEnd == 0) {
                 if (header.valueEnd == 0) {
                     return;
@@ -216,11 +228,14 @@ public class HttpProcessor {
             //获取请求头的名字 和 值
             String name = new String(header.name, 0, header.nameEnd);
             String value = new String(header.value, 0, header.valueEnd);
+            System.out.println(Thread.currentThread().getName() + " HttpHeader --> " + name + "  = " + value);
+
             //存入request中
             request.addHeader(name, value);
             
             // do something for some headers, ignore others.
             if (name.equals("cookie")) {
+                //解析Cookie
                 Cookie cookies[] = RequestUtil.parseCookieHeader(value);
                 
                 for (int i = 0; i < cookies.length; i++) {
@@ -257,8 +272,9 @@ public class HttpProcessor {
      * @return
      */
     protected String normalize(String path) {
-        if (path == null)
+        if (path == null) {
             return null;
+        }
         // Create a place for the normalized path
         String normalized = path;
 
@@ -278,22 +294,25 @@ public class HttpProcessor {
             return null;
         }
 
-        if (normalized.equals("/."))
+        if (normalized.equals("/.")) {
             return "/";
+        }
 
         // Normalize the slashes and add leading slash if necessary
-        if (normalized.indexOf('\\') >= 0)
+        if (normalized.indexOf('\\') >= 0) {
             normalized = normalized.replace('\\', '/');
-        if (!normalized.startsWith("/"))
+        }
+        if (!normalized.startsWith("/")) {
             normalized = "/" + normalized;
+        }
 
         // Resolve occurrences of "//" in the normalized path
         while (true) {
             int index = normalized.indexOf("//");
-            if (index < 0)
+            if (index < 0) {
                 break;
-            normalized = normalized.substring(0, index) +
-                    normalized.substring(index + 1);
+            }
+            normalized = normalized.substring(0, index) + normalized.substring(index + 1);
         }
 
         // Resolve occurrences of "/./" in the normalized path
@@ -301,8 +320,7 @@ public class HttpProcessor {
             int index = normalized.indexOf("/./");
             if (index < 0)
                 break;
-            normalized = normalized.substring(0, index) +
-                    normalized.substring(index + 2);
+            normalized = normalized.substring(0, index) + normalized.substring(index + 2);
         }
 
         // Resolve occurrences of "/../" in the normalized path
@@ -313,8 +331,7 @@ public class HttpProcessor {
             if (index == 0)
                 return (null);  // Trying to go outside our context
             int index2 = normalized.lastIndexOf('/', index - 1);
-            normalized = normalized.substring(0, index2) +
-                    normalized.substring(index + 3);
+            normalized = normalized.substring(0, index2) + normalized.substring(index + 3);
         }
 
         // Declare occurrences of "/..." (three or more dots) to be invalid

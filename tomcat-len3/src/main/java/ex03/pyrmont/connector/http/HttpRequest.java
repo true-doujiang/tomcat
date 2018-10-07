@@ -46,6 +46,7 @@ public class HttpRequest implements HttpServletRequest {
     private String protocol;
     private String queryString;
     private String requestURI;
+
     private String serverName;
     private int serverPort;
     private Socket socket;
@@ -105,6 +106,7 @@ public class HttpRequest implements HttpServletRequest {
 
     /**
      * Have the parameters for this request been parsed yet?
+     * 标记请求参数是否解析过
      */
     protected boolean parsed = false;
     protected String pathInfo = null;
@@ -133,16 +135,20 @@ public class HttpRequest implements HttpServletRequest {
      * 才会触发该方法解析请求参数 
      */
     protected void parseParameters() {
-        if (parsed)
+        if (parsed) {
             return;
+        }
         ParameterMap results = parameters;
-        if (results == null)
+        if (results == null) {
             results = new ParameterMap();
+        }
         results.setLocked(false);
         String encoding = getCharacterEncoding();
-        if (encoding == null)
+        if (encoding == null) {
             encoding = "ISO-8859-1";
+        }
 
+        //解析url中的参数
         // Parse any parameters specified in the query string
         String queryString = getQueryString();
         try {
@@ -153,14 +159,17 @@ public class HttpRequest implements HttpServletRequest {
 
         // Parse any parameters specified in the input stream
         String contentType = getContentType();
-        if (contentType == null)
+        if (contentType == null) {
             contentType = "";
+        }
         int semicolon = contentType.indexOf(';');
         if (semicolon >= 0) {
             contentType = contentType.substring(0, semicolon).trim();
         } else {
             contentType = contentType.trim();
         }
+
+        //解析POST 提交方式  请求体中的参数
         if ("POST".equals(getMethod()) && (getContentLength() > 0)
                 && "application/x-www-form-urlencoded".equals(contentType)) {
             try {
@@ -480,8 +489,7 @@ public class HttpRequest implements HttpServletRequest {
             String encoding = getCharacterEncoding();
             if (encoding == null)
                 encoding = "ISO-8859-1";
-            InputStreamReader isr =
-                    new InputStreamReader(createInputStream(), encoding);
+            InputStreamReader isr = new InputStreamReader(createInputStream(), encoding);
             reader = new BufferedReader(isr);
         }
         return (reader);

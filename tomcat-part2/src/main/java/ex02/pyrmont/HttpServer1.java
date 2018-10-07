@@ -7,6 +7,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.IOException;
 
+/**
+ * 本应用程序中的 servlet容器只能执行PrimitiveServlet
+ */
 public class HttpServer1 {
 
     // shutdown command

@@ -54,8 +54,10 @@ public class ServletProcessor {
             ((HttpResponse) response).finishResponse();
         } catch (Exception e) {
             System.err.println(e.toString());
+            e.printStackTrace();
         } catch (Throwable e) {
             System.err.println(e.toString());
+            e.printStackTrace();
         }
     }
 }
