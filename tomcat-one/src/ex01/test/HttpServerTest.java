@@ -27,6 +27,7 @@ public class HttpServerTest {
             boolean loop = true;
             StringBuffer sb = new StringBuffer(1024);
             while (loop) {
+				System.out.println("loop"); //循环很多次才会进入if
                 if ( in.ready() ) {
                     int i=0;
                     while (i!=-1) {
