@@ -27,7 +27,7 @@ public class HttpServer1 {
         ServerSocket serverSocket = null;
         int port = 8080;
         try {
-            serverSocket = new ServerSocket(port, 1, InetAddress.getByName("127.0.0.1"));
+            serverSocket = new ServerSocket(port, 3, InetAddress.getByName("127.0.0.1"));
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println(Thread.currentThread().getName() + " System.exit(1)1");
@@ -39,6 +39,7 @@ public class HttpServer1 {
             InputStream input = null;
             OutputStream output = null;
             try {
+                //阻塞等待HTTP请求
                 socket = serverSocket.accept();
                 System.out.println(Thread.currentThread().getName() + " 新客户端链接 socket = " + socket);
 
@@ -53,10 +54,12 @@ public class HttpServer1 {
 
                 if (request.getUri() != null && request.getUri().startsWith("/servlet/")) {
                     System.out.println(Thread.currentThread().getName() + " 处理--servlet--请求");
+
                     ServletProcessor1 processor = new ServletProcessor1();
                     processor.process(request, response);
                 } else {
                     System.out.println(Thread.currentThread().getName() + " 处理--静态资源--请求");
+
                     StaticResourceProcessor processor = new StaticResourceProcessor();
                     processor.process(request, response);
                 }

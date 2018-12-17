@@ -10,6 +10,7 @@ import java.io.File;
 
 public class HttpServer {
 
+	//参考  ServerSocket讲解    https://blog.csdn.net/tian779278804/article/details/50922354/
 
     public static final String WEB_ROOT = System.getProperty("user.dir") + File.separator + "webroot";
 
@@ -26,7 +27,7 @@ public class HttpServer {
 
     public void await() {
         ServerSocket serverSocket = null;
-        int port = 8080;
+        int port = 8088;
         try {
             serverSocket = new ServerSocket(port, 3, InetAddress.getByName("127.0.0.1"));
         } catch (IOException e) {

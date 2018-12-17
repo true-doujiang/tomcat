@@ -36,7 +36,7 @@ public class PrimitiveServlet implements Servlet {
     }
 
     public String getServletInfo() {
-        return null;
+        return "ServletIinfo";
     }
 
     public ServletConfig getServletConfig() {

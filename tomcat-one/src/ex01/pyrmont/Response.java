@@ -35,6 +35,14 @@ public class Response {
                 int ch = fis.read(bytes, 0, len);
 
                 if (ch != -1) {
+                    String header = "HTTP/1.1 200 OK\r\n"
+                            + "Content-Type: text/html\r\n"
+                            + "Content-Length: 25\r\n"
+                            + "Content-uuuu: uuuu\r\n"   //自定义响应头
+                            //+ "Set-Cookie: name=value\r\n"
+                            ;
+
+                    output.write(header.getBytes());
                     output.write(bytes, 0, ch);
                     //System.out.println(Arrays.toString(bytes));
                     System.out.println("response:\n" + new String(bytes, 0, bytes.length));
@@ -54,8 +62,9 @@ public class Response {
             System.err.println(e.toString());
         } finally {
             System.out.println("------sendStaticResource end ------");
-            if (fis != null)
+            if (fis != null) {
                 fis.close();
+            }
         }
     }
 }

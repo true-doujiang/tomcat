@@ -35,8 +35,13 @@ public class Response implements ServletResponse {
             int len = fis.available();
             byte[] bytes = new byte[len];
             int ch = fis.read(bytes, 0, len);
+            String headers = "HTTP/1.1 200 OK\r\n"
+                    + "Content-Type: text/html\r\n"
+                    + "Content-Length: 23\r\n"
+                    + "\r\n";
 
             if (ch != -1) {
+                output.write(headers.getBytes());
                 output.write(bytes, 0, ch);
                 //System.out.println(Arrays.toString(bytes));
                 System.out.println(Thread.currentThread().getName() + " response:\n" + new String(bytes, 0, bytes.length));
