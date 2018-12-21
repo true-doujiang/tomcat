@@ -15,10 +15,11 @@ public class HttpServerTest {
 
     public static void send() {
         try {
+            //socket 使用的是TCP协议  你在这里无论什么参数都是走TCP协议传输
             Socket socket = new Socket("127.0.0.1", 8080);
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-            // HTTP/0.8  也可以
-            out.println("GET /PrimitiveServlet;jsessionid=khdslah?username=uuu&info=18 HTTP/1.1");
+            // HTTP/0.8  也可以  PrimitiveServlet;jsessionid=khdslah?username=uuu&info=18
+            out.println("GET /servlet/PrimitiveServlet HTTP/1.1");
             out.println("Host: localhost:8080");
             out.println("Connection: Close");
             out.println();
@@ -28,6 +29,7 @@ public class HttpServerTest {
             boolean loop = true;
             StringBuffer sb = new StringBuffer(1024);
             while (loop) {
+                System.out.println("loop");
                 if ( in.ready() ) {
                     int i=0;
                     while (i!=-1) {
@@ -36,7 +38,7 @@ public class HttpServerTest {
                     }
                     loop = false;
                 }
-                //Thread.currentThread().sleep(100);
+                Thread.sleep(100);
             }
             System.out.println("response:\n" + sb.toString());
             socket.close();

@@ -1,3 +1,5 @@
+import ex02.pyrmont.Request;
+
 import javax.servlet.*;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -25,6 +27,9 @@ public class PrimitiveServlet implements Servlet {
 
         PrintWriter out = response.getWriter();
         System.out.println(Thread.currentThread().getName() + " PrimitiveServlet PrintWriter = " + out);
+        Request req = (Request) request;
+        String uri = req.getUri();
+        System.out.println(Thread.currentThread().getName() + " 我居然调用到了容器里Request的私有方法 uri=" + uri);
 
         out.println("Hello. Roses are red.");
         out.print("Violets are blue.");

@@ -15,6 +15,7 @@ public class HttpServerTest {
 
     public static void send() {
         try {
+			//socket 使用的是TCP协议  你在这里无论什么参数都是走TCP协议传输
             Socket socket = new Socket("127.0.0.1", 8080);
             //一定要带true
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
