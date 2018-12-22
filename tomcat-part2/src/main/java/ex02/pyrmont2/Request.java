@@ -34,7 +34,33 @@ public class Request implements ServletRequest {
         for (int j = 0; j < i; j++) {
             request.append((char) buffer[j]);
         }
-        System.out.print(Thread.currentThread().getName() + " 解析请求:\n" + request.toString());
+        System.out.print(Thread.currentThread().getName()
+                + " 解析请求------start----\n"
+                + request.toString());
+        System.out.println(Thread.currentThread().getName() + " 解析请求-----end----\n\n");
+        uri = parseUri(request.toString());
+    }
+
+    public void parse2() {
+        StringBuffer request = new StringBuffer(2048);
+        byte[] buffer = new byte[2048];
+        int len = 0;
+
+        try {
+            while ((len = input.read(buffer)) > 0) {
+                for (int j = 0; j < len; j++) {
+                    request.append((char) buffer[j]);
+                }
+                System.out.println(Thread.currentThread().getName() + " 请求参数: " + request.toString());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.print(Thread.currentThread().getName()
+                + " 解析请求------start----\n"
+                + request.toString());
+        System.out.println(Thread.currentThread().getName() + " 解析请求-----end----\n\n");
         uri = parseUri(request.toString());
     }
 

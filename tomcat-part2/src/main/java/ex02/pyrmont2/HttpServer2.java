@@ -9,6 +9,8 @@ import java.io.IOException;
 
 public class HttpServer2 {
 
+    private int count;
+
     // shutdown command
     private static final String SHUTDOWN_COMMAND = "/SHUTDOWN";
 
@@ -24,7 +26,7 @@ public class HttpServer2 {
         ServerSocket serverSocket = null;
         int port = 8080;
         try {
-            serverSocket = new ServerSocket(port, 1, InetAddress.getByName("127.0.0.1"));
+            serverSocket = new ServerSocket(port, 3, InetAddress.getByName("127.0.0.1"));
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println(Thread.currentThread().getName() + " System.exit(1)2");
@@ -38,7 +40,8 @@ public class HttpServer2 {
             OutputStream output = null;
             try {
                 socket = serverSocket.accept();
-                System.out.println(Thread.currentThread().getName() + " 新客户端链接 socket = " + socket);
+                count++;
+                System.out.println(Thread.currentThread().getName() + " 新客户端链接 socket" + count + " = " + socket);
                 //Thread.sleep(1000);
 
                 input = socket.getInputStream();
@@ -62,8 +65,7 @@ public class HttpServer2 {
                 }
 
                 socket.close();
-                System.out.println(Thread.currentThread().getName() + " 关闭 socket = " + socket);
-
+                System.out.println(Thread.currentThread().getName() + " 关闭 socket" + count + " = " + socket + "\n");
                 if (request.getUri() != null) {
                     shutdown = request.getUri().equals(SHUTDOWN_COMMAND);
                 }
