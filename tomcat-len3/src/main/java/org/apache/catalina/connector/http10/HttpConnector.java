@@ -98,7 +98,7 @@ import org.apache.catalina.util.StringManager;
  *
  * @author Craig R. McClanahan
  * @version $Revision: 1.17 $ $Date: 2002/03/18 07:15:40 $
- * @deprecated
+ * //@deprecated
  */
 
 

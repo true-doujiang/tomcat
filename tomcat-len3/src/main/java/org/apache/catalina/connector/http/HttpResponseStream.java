@@ -75,7 +75,7 @@ import org.apache.catalina.connector.ResponseStream;
  * set.
  *
  * @author <a href="mailto:remm@apache.org">Remy Maucherat</a>
- * @deprecated
+ * //@deprecated
  */
 public final class HttpResponseStream extends ResponseStream {
 

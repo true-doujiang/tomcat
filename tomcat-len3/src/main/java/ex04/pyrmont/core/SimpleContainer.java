@@ -4,7 +4,6 @@ import java.beans.PropertyChangeListener;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLStreamHandler;
-import java.util.Enumeration;
 import java.io.File;
 import java.io.IOException;
 
@@ -31,11 +30,9 @@ import org.apache.catalina.Response;
  */
 public class SimpleContainer implements Container {
 
-	public static final String WEB_ROOT =
-            System.getProperty("user.dir") + File.separator + "src/main/webapp/webroot";
+	public static final String WEB_ROOT = System.getProperty("user.dir") + File.separator + "src/main/webapp/webroot";
 
-	public SimpleContainer() {
-	}
+	public SimpleContainer() { }
 
 	/**
 	 * 连接器会调用servlet容器的invoke()

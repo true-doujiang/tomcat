@@ -19,8 +19,7 @@ import org.apache.catalina.util.Enumerator;
  * @depre//cated
  */
 
-final class HttpRequestImpl
-    extends HttpRequestBase {
+final class HttpRequestImpl extends HttpRequestBase {
 
 
     // -------------------------------------------------------------- Constants

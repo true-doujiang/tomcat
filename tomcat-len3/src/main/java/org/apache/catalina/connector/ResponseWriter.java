@@ -15,7 +15,7 @@ import java.io.PrintWriter;
  *
  * @author Craig R. McClanahan
  * @version $Revision: 1.2 $ $Date: 2002/03/18 07:15:39 $
- * @deprecated
+ * //@deprecated
  */
 
 public class ResponseWriter extends PrintWriter {

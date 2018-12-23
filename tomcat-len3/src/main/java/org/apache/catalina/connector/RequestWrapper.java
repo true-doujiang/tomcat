@@ -85,7 +85,7 @@ import org.apache.catalina.Wrapper;
  *
  * @author Craig R. McClanahan
  * @version $Revision: 1.4 $ $Date: 2002/03/18 07:15:39 $
- * @deprecated
+ * //@deprecated
  */
 
 public abstract class RequestWrapper implements Request {

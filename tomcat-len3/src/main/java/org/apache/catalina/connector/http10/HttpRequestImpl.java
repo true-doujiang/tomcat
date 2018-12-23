@@ -74,11 +74,10 @@ import org.apache.catalina.connector.HttpRequestBase;
  *
  * @author Craig R. McClanahan
  * @version $Revision: 1.5 $ $Date: 2002/03/18 07:15:40 $
- * @deprecated
+ * //@deprecated
  */
 
-final class HttpRequestImpl
-    extends HttpRequestBase {
+final class HttpRequestImpl extends HttpRequestBase {
 
 
     // ----------------------------------------------------- Instance Variables

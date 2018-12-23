@@ -20,6 +20,7 @@ public final class Bootstrap {
 		 * 3.调用Container接口的invoke() 将request、response对象传递给servlet容器
 		 */
 		HttpConnector connector = new HttpConnector();
+
 		//创建Servlet容器
 		SimpleContainer container = new SimpleContainer();
 		//连接器与Servlet容器是一对一的关系
