@@ -51,12 +51,12 @@ public class ServletProcessor {
             servlet.service(requestFacade, responseFacade);
 
             //刷新PrintWriter缓存
-            ((HttpResponse) response).finishResponse();
+            response.finishResponse();
         } catch (Exception e) {
-            System.err.println(e.toString());
+            //System.err.println(e.toString());
             e.printStackTrace();
         } catch (Throwable e) {
-            System.err.println(e.toString());
+            //System.err.println(e.toString());
             e.printStackTrace();
         }
     }

@@ -170,8 +170,8 @@ public final class ParameterMap extends HashMap {
     /**
      * The string manager for this package.
      */
-    private static final StringManager sm =
-        StringManager.getManager("org.apache.catalina.util");
+//    private static final StringManager sm =
+//        StringManager.getManager("org.apache.catalina.util");
 
 
     // --------------------------------------------------------- Public Methods
@@ -187,7 +187,8 @@ public final class ParameterMap extends HashMap {
 
         if (locked)
             throw new IllegalStateException
-                (sm.getString("parameterMap.locked"));
+                //(sm.getString("parameterMap.locked"));
+                    ("parameterMap.locked");
         super.clear();
 
     }
@@ -210,7 +211,8 @@ public final class ParameterMap extends HashMap {
 
         if (locked)
             throw new IllegalStateException
-                (sm.getString("parameterMap.locked"));
+                //(sm.getString("parameterMap.locked"));
+                    ("parameterMap.locked");
         return (super.put(key, value));
 
     }
@@ -229,7 +231,8 @@ public final class ParameterMap extends HashMap {
 
         if (locked)
             throw new IllegalStateException
-                (sm.getString("parameterMap.locked"));
+                //(sm.getString("parameterMap.locked"));
+                    ("parameterMap.locked");
         super.putAll(map);
 
     }
@@ -248,7 +251,9 @@ public final class ParameterMap extends HashMap {
     public Object remove(Object key) {
 
         if (locked)
-            throw new IllegalStateException(sm.getString("parameterMap.locked"));
+            throw new IllegalStateException
+                    //(sm.getString("parameterMap.locked"));
+                    ("parameterMap.locked");
         return (super.remove(key));
 
     }

@@ -36,12 +36,20 @@ import org.apache.catalina.util.RequestUtil;
 
 import ex03.pyrmont.connector.RequestStream;
 
+/**
+ * 第二章则是实现的javax.servlet.ServletRequest接口
+ */
 public class HttpRequest implements HttpServletRequest {
 
+    //HttpProcess.parseHeader中设置的
     private String contentType;
     private int contentLength;
+
     private InetAddress inetAddress;
+
+    //HttpProcessor中创建HttpRequest对象是设置的 SocketInputStream
     private InputStream input;
+
     private String method;
     private String protocol;
     private String queryString;
@@ -51,25 +59,29 @@ public class HttpRequest implements HttpServletRequest {
     private int serverPort;
     private Socket socket;
     private boolean requestedSessionCookie;
+
+    //浏览器禁用cookie时，用我存放url中会话标识符
     private String requestedSessionId;
+    //url中带会话标识符是设置true
     private boolean requestedSessionURL;
 
-    /**
-     * The request attributes for this request.
-     */
     protected HashMap attributes = new HashMap();
-    /**
-     * The authorization credentials sent with this Request.
-     */
     protected String authorization = null;
-    /**
-     * The context path for this request.
-     */
     protected String contextPath = "";
+
     /**
-     * The set of cookies associated with this Request.
+     * Have the parameters for this request been parsed yet?
+     * 标记请求参数是否解析过
      */
+    protected boolean parsed = false;
+    protected String pathInfo = null;
+
+    //继承自HashMap其中其中有一个locked 布尔变量，只有当为false才可以添加、删除、修改，否则抛出异常
+    //读取可以发生任何时候
+    protected ParameterMap parameters = null;
     protected ArrayList cookies = new ArrayList();
+    protected HashMap headers = new HashMap();
+
     /**
      * An empty collection to use for returning empty Enumerations.  Do not
      * add any elements to this collection!
@@ -84,32 +96,6 @@ public class HttpRequest implements HttpServletRequest {
             new SimpleDateFormat("EEE MMMM d HH:mm:ss yyyy", Locale.US)
     };
 
-    /**
-     * The HTTP headers associated with this Request, keyed by name.  The
-     * values are ArrayLists of the corresponding header values.
-     */
-    protected HashMap headers = new HashMap();
-    
-    /**
-     * The parsed parameters for this request.  This is populated only if
-     * parameter information is requested via one of the
-     * <code>getParameter()</code> family of method calls.  The key is the
-     * parameter name, while the value is a String array of values for this
-     * parameter.
-     * <p>
-     * <strong>IMPLEMENTATION NOTE</strong> - Once the parameters for a
-     * particular request are parsed and stored here, they are not modified.
-     * Therefore, application level access to the parameters need not be
-     * synchronized.
-     */
-    protected ParameterMap parameters = null;
-
-    /**
-     * Have the parameters for this request been parsed yet?
-     * 标记请求参数是否解析过
-     */
-    protected boolean parsed = false;
-    protected String pathInfo = null;
 
     /**
      * The reader that has been returned by <code>getReader</code>, if any.
@@ -122,6 +108,7 @@ public class HttpRequest implements HttpServletRequest {
      */
     protected ServletInputStream stream = null;
 
+    //
     public HttpRequest(InputStream input) {
         this.input = input;
     }
@@ -131,8 +118,17 @@ public class HttpRequest implements HttpServletRequest {
      * If parameters are present in both the query string and the request
      * content, they are merged.
      * 
-     * 当servlet程序员在servlet中调用了getParameter() getParameterMap() 等方法
-     * 才会触发该方法解析请求参数 
+     * 当servlet程序员在servlet中调用了
+     *      getParameter()
+     *      getParameterMap()
+     *      getAttributeNames
+     *      getParameterValues
+     *
+     * 才会触发该方法解析请求参数.
+     *
+     * 若为GET请求，所有参数都会在查询字符串中
+     * 若为POST请求，则请求体中也可能包含参数
+     *
      */
     protected void parseParameters() {
         if (parsed) {
@@ -140,15 +136,18 @@ public class HttpRequest implements HttpServletRequest {
         }
         ParameterMap results = parameters;
         if (results == null) {
+            //ParameterMap中的 去掉了，不然一直报错
+            // StringManager sm =  StringManager.getManager("org.apache.catalina.util");
             results = new ParameterMap();
         }
+        //打开ParameterMap锁
         results.setLocked(false);
         String encoding = getCharacterEncoding();
         if (encoding == null) {
             encoding = "ISO-8859-1";
         }
 
-        //解析url中的参数
+        // 若为GET请求方式    解析url中的参数
         // Parse any parameters specified in the query string
         String queryString = getQueryString();
         try {
@@ -169,9 +168,8 @@ public class HttpRequest implements HttpServletRequest {
             contentType = contentType.trim();
         }
 
-        //解析POST 提交方式  请求体中的参数
-        if ("POST".equals(getMethod()) && (getContentLength() > 0)
-                && "application/x-www-form-urlencoded".equals(contentType)) {
+        // 若为POST 请求方式  请求体中的参数
+        if ("POST".equals(getMethod()) && (getContentLength() > 0) && "application/x-www-form-urlencoded".equals(contentType)) {
             try {
                 int max = getContentLength();
                 int len = 0;
@@ -353,8 +351,9 @@ public class HttpRequest implements HttpServletRequest {
 
     public Cookie[] getCookies() {
         synchronized (cookies) {
-            if (cookies.size() < 1)
+            if (cookies.size() < 1) {
                 return (null);
+            }
             Cookie results[] = new Cookie[cookies.size()];
             return ((Cookie[]) cookies.toArray(results));
         }
@@ -362,8 +361,9 @@ public class HttpRequest implements HttpServletRequest {
 
     public long getDateHeader(String name) {
         String value = getHeader(name);
-        if (value == null)
+        if (value == null) {
             return (-1L);
+        }
 
         // Work around a bug in SimpleDateFormat in pre-JDK1.2b4
         // (Bug Parade bug #4106807)
@@ -402,10 +402,11 @@ public class HttpRequest implements HttpServletRequest {
         name = name.toLowerCase();
         synchronized (headers) {
             ArrayList values = (ArrayList) headers.get(name);
-            if (values != null)
+            if (values != null) {
                 return (new Enumerator(values));
-            else
+            } else {
                 return (new Enumerator(empty));
+            }
         }
     }
 
@@ -413,17 +414,19 @@ public class HttpRequest implements HttpServletRequest {
         if (reader != null)
             throw new IllegalStateException("getInputStream has been called");
 
-        if (stream == null)
+        if (stream == null) {
             stream = createInputStream();
+        }
         return (stream);
     }
 
     public int getIntHeader(String name) {
         String value = getHeader(name);
-        if (value == null)
+        if (value == null) {
             return (-1);
-        else
+        } else {
             return (Integer.parseInt(value));
+        }
     }
 
     public Locale getLocale() {
@@ -487,8 +490,9 @@ public class HttpRequest implements HttpServletRequest {
             throw new IllegalStateException("getInputStream has been called.");
         if (reader == null) {
             String encoding = getCharacterEncoding();
-            if (encoding == null)
+            if (encoding == null) {
                 encoding = "ISO-8859-1";
+            }
             InputStreamReader isr = new InputStreamReader(createInputStream(), encoding);
             reader = new BufferedReader(isr);
         }

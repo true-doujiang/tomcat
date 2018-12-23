@@ -7,6 +7,7 @@ import java.net.Socket;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 
+import org.apache.catalina.util.ParameterMap;
 import org.apache.catalina.util.RequestUtil;
 import org.apache.catalina.util.StringManager;
 
@@ -26,7 +27,8 @@ public class HttpProcessor {
      * 本应用并没有用到它
      */
     private HttpConnector connector = null;
-	
+
+    //
     private HttpRequestLine requestLine = new HttpRequestLine();
     private HttpRequest request;
     private HttpResponse response;
@@ -50,8 +52,9 @@ public class HttpProcessor {
      * 4.将HTTPRequest对象和HTTPResponse对象传递给servletProcessor或者StaticResourceProcessor的process()方法。
      *
      * @param socket
+     * @param count  我自己新添加的方便计数
      */
-    public void process(Socket socket) {
+    public void process(Socket socket, int count) {
         SocketInputStream input = null;
         OutputStream output = null;
         try {
@@ -63,6 +66,7 @@ public class HttpProcessor {
             response = new HttpResponse(output);
             
             response.setRequest(request);
+            //设置响应头
             response.setHeader("Server", "Pyrmont Servlet Container");
             response.setHeader("Content-Type", "text/html");
             
@@ -73,7 +77,7 @@ public class HttpProcessor {
              * 但是 并不会解析请求体和查询字符串中的参数。 这个任务交给各个HttpRequest对象自己完成
              */
             parseRequest(input, output);
-            //解析请求头信息
+            //解析请求头信息 cookie,并将其填充到HttpRequest对象成员变量中
             parseHeaders(input);
 
             if (request.getRequestURI().startsWith("/servlet/")) {
@@ -88,7 +92,7 @@ public class HttpProcessor {
                 processor.process(request, response);
             }
             
-            System.out.println(Thread.currentThread().getName() + " 关闭 socket: " + socket);
+            System.out.println(Thread.currentThread().getName() + " 关闭 socket" + count + " " + socket);
             System.out.println();
             socket.close();
         } catch (Exception e) {
@@ -123,7 +127,7 @@ public class HttpProcessor {
         
         /*
          *  Parse any query parameters out of the request URI
-         *  HttpRequest 解析请求参数
+         *   解析请求参数、URI 设置到 HttpRequest 中
          */
         int question = requestLine.indexOf("?");
         if (question >= 0) {
@@ -166,10 +170,13 @@ public class HttpProcessor {
                 request.setRequestedSessionId(rest.substring(0, semicolon2));
                 rest = rest.substring(semicolon2);
             } else {
+                //设置会话标识符
                 request.setRequestedSessionId(rest);
                 rest = "";
             }
+            //包含会话标识符设置true
             request.setRequestedSessionURL(true);
+            //请求uri
             uri = uri.substring(0, semicolon) + rest;
         } else {
             request.setRequestedSessionId(null);
@@ -186,13 +193,13 @@ public class HttpProcessor {
          *  Set the corresponding request properties
          *  设置HttpRequest对象的一些属性
          */
-        ((HttpRequest) request).setMethod(method);
+        request.setMethod(method);
         request.setProtocol(protocol);
         
         if (normalizedUri != null) {
-            ((HttpRequest) request).setRequestURI(normalizedUri);
+            request.setRequestURI(normalizedUri);
         } else {
-            ((HttpRequest) request).setRequestURI(uri);
+            request.setRequestURI(uri);
         }
 
         // 抛异常
@@ -202,7 +209,7 @@ public class HttpProcessor {
     }
 
     /**
-     * 
+     * 解析请求头信息 cookie,并将其填充到HttpRequest对象成员变量中
      * @param input
      * @throws IOException
      * @throws ServletException
@@ -211,13 +218,12 @@ public class HttpProcessor {
         //循环一次读一个请求头
         while (true) {
 
-
             HttpHeader header = new HttpHeader();
-            ;
             // Read the next header
             input.readHeader(header);
             
-            //若没有请求头可以读取 则退出while
+            //可以通过检查HttpHeader实例的nameEnd、valueEnd字段来判断是否已经从输入流中读取了所有请求头
+            //都读完了时nameEnd、valueEnd字段为0
             if (header.nameEnd == 0) {
                 if (header.valueEnd == 0) {
                     return;
@@ -225,11 +231,11 @@ public class HttpProcessor {
                     throw new ServletException (sm.getString("httpProcessor.parseHeaders.colon"));
                 }
             }
+
             //获取请求头的名字 和 值
             String name = new String(header.name, 0, header.nameEnd);
             String value = new String(header.value, 0, header.valueEnd);
-            System.out.println(Thread.currentThread().getName() + " HttpHeader --> " + name + "  = " + value);
-
+            System.out.println(Thread.currentThread().getName() + " httpProcessor.parseHeaders --> " + name + "  = " + value);
             //存入request中
             request.addHeader(name, value);
             
@@ -326,18 +332,21 @@ public class HttpProcessor {
         // Resolve occurrences of "/../" in the normalized path
         while (true) {
             int index = normalized.indexOf("/../");
-            if (index < 0)
+            if (index < 0) {
                 break;
-            if (index == 0)
+            }
+            if (index == 0) {
                 return (null);  // Trying to go outside our context
+            }
             int index2 = normalized.lastIndexOf('/', index - 1);
             normalized = normalized.substring(0, index2) + normalized.substring(index + 3);
         }
 
         // Declare occurrences of "/..." (three or more dots) to be invalid
         // (on some Windows platforms this walks the directory tree!!!)
-        if (normalized.indexOf("/...") >= 0)
+        if (normalized.indexOf("/...") >= 0) {
             return (null);
+        }
 
         // Return the normalized path that we have completed
         return (normalized);

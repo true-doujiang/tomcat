@@ -17,6 +17,17 @@ public class HttpServer2 {
     // the shutdown command received
     private boolean shutdown = false;
 
+    /**
+     * 本应用servlet容器仅能运行实现了javax.servlet.Servlet接口的Servlet
+     * 其实也能运行实现了javax.servlet.GenericServlet接口的Servlet
+     * 不能运行实现HttpServlet接口的Servlet是因为
+     *   service()中做了判断  传入的req、resp 必须实现HttpServletRequest HttpServletResponse接口
+     *   if (!(req instanceof HttpServletRequest &&
+            res instanceof HttpServletResponse)) {
+            throw new ServletException("non-HTTP request or response");
+         }
+     * @param args
+     */
     public static void main(String[] args) {
         HttpServer2 server = new HttpServer2();
         server.await();

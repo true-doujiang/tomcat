@@ -12,8 +12,11 @@ import org.apache.catalina.util.StringManager;
  * @author <a href="mailto:remm@apache.org">Remy Maucherat</a>
  * @//deprecated
  */
-//本类是org.apache.catalina.connector.http.SocketInputStream的副本
-//提供了 解析HTTP请求行  请求头的方法 readRequestLine()  readHeader()
+/**
+ * 本类是org.apache.catalina.connector.http.SocketInputStream的副本
+ *
+ * 该类提供了 解析HTTP请求行、请求头的方法 readRequestLine()  readHeader()
+ */
 public class SocketInputStream extends InputStream {
 
 

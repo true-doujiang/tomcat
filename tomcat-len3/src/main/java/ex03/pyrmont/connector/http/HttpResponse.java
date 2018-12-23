@@ -10,6 +10,10 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+
+/**
+ * 第二章则是实现的javax.servlet.ServletResponse接口
+ */
 public class HttpResponse implements HttpServletResponse {
 
     // the default buffer size
@@ -345,8 +349,7 @@ public class HttpResponse implements HttpServletResponse {
         ResponseStream newStream = new ResponseStream(this);
         //设置为true   就不需要ServletProcessor -> ((HttpResponse) response).finishResponse();
         newStream.setCommit(false);
-        OutputStreamWriter osr =
-                new OutputStreamWriter(newStream, getCharacterEncoding());
+        OutputStreamWriter osr = new OutputStreamWriter(newStream, getCharacterEncoding());
         writer = new ResponseWriter(osr);
         System.out.println(Thread.currentThread().getName() + " Response.getWriter() writer=" + writer);
         return writer;
@@ -508,8 +511,9 @@ public class HttpResponse implements HttpServletResponse {
             } catch (NumberFormatException e) {
                 ;
             }
-            if (contentLength >= 0)
+            if (contentLength >= 0) {
                 setContentLength(contentLength);
+            }
         } else if (match.equals("content-type")) {
             setContentType(value);
         }

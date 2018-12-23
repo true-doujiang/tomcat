@@ -19,6 +19,8 @@ public class HttpConnector implements Runnable {
         return scheme;
     }
 
+    int count;
+
     public void run() {
         ServerSocket serverSocket = null;
         int port = 8080;
@@ -36,15 +38,15 @@ public class HttpConnector implements Runnable {
             } catch (Exception e) {
                 continue;
             }
-            
-            System.out.println(Thread.currentThread().getName() + " 新客户端接入: socket = " + socket);
+            count++;
+            System.out.println(Thread.currentThread().getName() + " 新客户端接入: socket" + count + " = " + socket);
             
             /**
              * 每次HttpConnector实例只有一个HttpProcessor实例可以使用，所以每次他只能处理一个HTTP请求
              */
             // 创建Request和Response对象          本应用中this并没有用到
             HttpProcessor processor = new HttpProcessor(this);
-            processor.process(socket);
+            processor.process(socket, count);
         }
     }
 

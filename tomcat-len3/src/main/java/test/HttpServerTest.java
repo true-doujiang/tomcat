@@ -1,5 +1,7 @@
 package test;
 
+import org.apache.catalina.util.ParameterMap;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -8,7 +10,6 @@ import java.net.Socket;
 public class HttpServerTest {
 
     public static void main(String[] args) {
-
         send();
     }
 
@@ -16,11 +17,13 @@ public class HttpServerTest {
         try {
             Socket socket = new Socket("127.0.0.1", 8080);
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-            out.println("GET /servlet/ModernServlet;jsessionid=khdslah?username=uuu&info=18 HTTP/1.1");
+            //out.println("GET /servlet/PrimitiveServlet;jsessionid=ghco9xdnaco31gmafukxchph?username=uuu&info=18 HTTP/1.1");
+            out.println("GET /servlet/PrimitiveServlet?username=uuu&info=19&address=上海 HTTP/1.1");
             out.println("Host: localhost:8080");
             out.println("Connection: Close");
             out.println("content-length: 11");
-            out.println("content-type: text/html");
+            out.println("content-type: text/html"); //application/x-www-form-urlencoded
+            out.println("Cookie: userName=budi;password=pwd");
             out.println();
             out.println("name=yhh&age=18");
 

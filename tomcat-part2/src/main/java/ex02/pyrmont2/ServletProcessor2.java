@@ -58,9 +58,11 @@ public class ServletProcessor2 {
             servlet.service((ServletRequest) requestFacade, (ServletResponse) responseFacade);
 
         } catch (Exception e) {
-            System.out.println(e.toString());
+            //System.out.println(e.toString());
+            e.printStackTrace();
         } catch (Throwable e) {
-            System.out.println(e.toString());
+            e.printStackTrace();
+            //System.out.println(e.toString());
         }
 
     }

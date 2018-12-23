@@ -41,6 +41,10 @@ public class Request implements ServletRequest {
         uri = parseUri(request.toString());
     }
 
+
+    /**
+     * 我加的
+     */
     public void parse2() {
         StringBuffer request = new StringBuffer(2048);
         byte[] buffer = new byte[2048];

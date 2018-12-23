@@ -27,11 +27,14 @@ public class PrimitiveServlet implements Servlet {
 
         PrintWriter out = response.getWriter();
         System.out.println(Thread.currentThread().getName() + " PrimitiveServlet PrintWriter = " + out);
-        Request req = (Request) request;
-        String uri = req.getUri();
-        System.out.println(Thread.currentThread().getName() + " 我居然调用到了容器里Request的私有方法 uri=" + uri);
+
+        //应用一  可以这么用   应用二会抛异常java.lang.ClassCastException: ex02.pyrmont2.RequestFacade cannot be cast to ex02.pyrmont.Request
+        //Request req = (Request) request;
+        //String uri = req.getUri();
+        //System.out.println(Thread.currentThread().getName() + " 我居然调用到了容器里Request的私有方法 uri=" + uri);
 
         out.println("Hello. Roses are red.");
+        //print()  不要flush
         out.print("Violets are blue.");
         System.out.println("from service --------end------ ");
     }
