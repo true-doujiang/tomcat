@@ -63,6 +63,15 @@ public abstract class RequestBase
 
 
     /**
+     * HttpConnector.createRequest() {
+     * 
+     *     HttpRequestImpl request = new HttpRequestImpl();
+     *     request.setConnector(this);
+     *     return request;
+     * }
+     *
+     * 但是HpptConnector并没有使用
+     * 
      * The Connector through which this Request was received.
      */
     protected Connector connector = null;

@@ -17,8 +17,7 @@ import org.apache.catalina.connector.HttpResponseBase;
  * @dep//recated
  */
 
-final class HttpResponseImpl
-    extends HttpResponseBase {
+final class HttpResponseImpl extends HttpResponseBase {
 
 
     // ----------------------------------------------------- Instance Variables

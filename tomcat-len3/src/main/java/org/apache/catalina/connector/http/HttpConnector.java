@@ -125,9 +125,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
     protected int minProcessors = 2; //5
 
 
-    /**
-     * The maximum number of processors allowed, or <0 for unlimited.
-     */
+    // The maximum number of processors allowed, or <0 for unlimited.
     private int maxProcessors = 20;
 
 
@@ -541,9 +539,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
     }
 
 
-    /**
-     * Return the maximum number of processors allowed, or <0 for unlimited.
-     */
+    // Return the maximum number of processors allowed, or <0 for unlimited.
     public int getMaxProcessors() {
 
         return (maxProcessors);
@@ -551,8 +547,9 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
     }
 
 
+    //Set the maximum number of processors allowed, or <0 for unlimited.
     /**
-     * Set the maximum number of processors allowed, or <0 for unlimited.
+     * 
      *
      * @param maxProcessors The new maximum processors
      */
@@ -948,9 +945,9 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
             try {
                 //                if (debug >= 3)
                 //                    log("run: Waiting on serverSocket.accept()");
-            	System.out.println(Thread.currentThread().getName() + " 连接器线程  +++等待+++ serverSocket.accept() ");
+            	System.err.println(Thread.currentThread().getName() + " 连接器线程  +++等待+++ serverSocket.accept() ");
                 socket = serverSocket.accept();
-                System.out.println(Thread.currentThread().getName() + " 连接器线程  ===收到=== connect      socket = " + socket);
+                System.err.println(Thread.currentThread().getName() + " 连接器线程  ===收到=== connect      socket = " + socket);
                 
                 //                if (debug >= 3)
                 //                    log("run: Returned from serverSocket.accept()");
@@ -1000,6 +997,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
                     break;
                 }
 
+                // 本次接收请求失败  还会继续接收后面的请求
                 continue;
             }
 

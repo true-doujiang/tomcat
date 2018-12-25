@@ -72,6 +72,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
         this.proxyName = connector.getProxyName();
         this.proxyPort = connector.getProxyPort();
         
+        //创建HttpProcessor实例是就把request、response创建好了啊，但是没请求信息
         this.request = (HttpRequestImpl) connector.createRequest();
         this.response = (HttpResponseImpl) connector.createResponse();
         
@@ -1005,6 +1006,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
 
             // Wait for the next socket to be assigned
         	System.out.println(Thread.currentThread().getName() + " HttpProcessor await 前");
+            // assign() 方法线程通讯
             Socket socket = await();
             System.out.println(Thread.currentThread().getName() + " HttpProcessor await 后   process socket = " + socket);
             
@@ -1053,8 +1055,9 @@ final class HttpProcessor implements Lifecycle, Runnable {
         available = false;
         notify();
 
-        if ((debug >= 1) && (socket != null))
+        if ((debug >= 1) && (socket != null)) {
             log("  The incoming request has been awaited");
+        }
 
         return (socket);
 
@@ -1080,6 +1083,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
             try {
                 wait();
             } catch (InterruptedException e) {
+
             }
         }
 
@@ -1088,8 +1092,9 @@ final class HttpProcessor implements Lifecycle, Runnable {
         available = true;
         notify();
 
-        if ((debug >= 1) && (socket != null))
+        if ((debug >= 1) && (socket != null)) {
             log(" An incoming request is being assigned");
+        }
 
     }
 
@@ -1105,8 +1110,9 @@ final class HttpProcessor implements Lifecycle, Runnable {
         thread.setDaemon(true);
         thread.start();
 
-        if (debug >= 1)
+        if (debug >= 1) {
             log(" Background thread has been started");
+        }
 
     }
 
@@ -1181,8 +1187,9 @@ final class HttpProcessor implements Lifecycle, Runnable {
      */
     public void start() throws LifecycleException {
 
-        if (started)
+        if (started) {
             throw new LifecycleException(sm.getString("httpProcessor.alreadyStarted"));
+        }
         lifecycle.fireLifecycleEvent(START_EVENT, null);
         started = true;
 
@@ -1198,8 +1205,9 @@ final class HttpProcessor implements Lifecycle, Runnable {
      */
     public void stop() throws LifecycleException {
 
-        if (!started)
+        if (!started) {
             throw new LifecycleException(sm.getString("httpProcessor.notStarted"));
+        }
         lifecycle.fireLifecycleEvent(STOP_EVENT, null);
         started = false;
 
