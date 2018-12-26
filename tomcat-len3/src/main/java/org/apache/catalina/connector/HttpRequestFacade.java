@@ -17,8 +17,7 @@ import org.apache.catalina.session.StandardSessionFacade;
  * @version $Revision: 1.2 $ $Date: 2001/07/22 20:25:06 $
  */
 
-public final class HttpRequestFacade
-    extends RequestFacade
+public final class HttpRequestFacade extends RequestFacade
     implements HttpServletRequest {
 
 

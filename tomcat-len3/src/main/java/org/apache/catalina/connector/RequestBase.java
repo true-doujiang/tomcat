@@ -37,8 +37,7 @@ import org.apache.catalina.util.StringManager;
  * @depre//cated
  */
 
-public abstract class RequestBase
-    implements ServletRequest, Request {
+public abstract class RequestBase implements ServletRequest, Request {
 
 
     // ----------------------------------------------------- Instance Variables

@@ -44,13 +44,11 @@ import org.apache.catalina.util.RequestUtil;
  * @dep//recated
  */
 
-public class HttpRequestBase
-    extends RequestBase
+public class HttpRequestBase extends RequestBase
     implements HttpRequest, HttpServletRequest {
 
 
-    protected class PrivilegedGetSession
-        implements PrivilegedAction {
+    protected class PrivilegedGetSession implements PrivilegedAction {
 
         private boolean create;
 

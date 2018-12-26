@@ -761,6 +761,8 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * Recycle the specified Processor so that it can be used again.
      *
      * @param processor The processor to be recycled
+     *
+     *  回收使用完的处理器 HttpProcessor
      */
     void recycle(HttpProcessor processor) {
 
@@ -868,8 +870,9 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
                 try {
                     // If reopening fails, exit
                     synchronized (threadSync) {
-                        if (started && !stopped)
-                            log("accept error: ", e);
+                        if (started && !stopped) {
+                            log("accept error: ", e);                            
+                        }
                         if (!stopped) {
                             //                    if (debug >= 3)
                             //                        log("run: Closing server socket");
@@ -910,7 +913,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
             HttpProcessor processor = createProcessor();
             //System.out.println(Thread.currentThread().getName() + " 获取处理器  processor = " + processor);
 
-            //池子已经满了  服务器就不处理新的HTTP请求了，直接关闭socket
+            // 池子已经满了  服务器就不处理新的HTTP请求了，直接关闭socket
             if (processor == null) {
                 try {
                     log(sm.getString("httpConnector.noProcessor"));
@@ -1126,7 +1129,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
         // Start our background thread
         threadStart();
         
-        // 创建HttpProcessor 并存入池子中
+        // 初始化一定数量 HttpProcessor 并存入池子中
         // Create the specified minimum number of processors
         while (curProcessors < minProcessors) {
             if ((maxProcessors > 0) && (curProcessors >= maxProcessors)) {

@@ -44,8 +44,7 @@ import org.apache.catalina.util.URL;
  * @depre//cated
  */
 
-public class HttpResponseBase
-    extends ResponseBase
+public class HttpResponseBase extends ResponseBase
     implements HttpResponse, HttpServletResponse {
 
 

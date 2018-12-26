@@ -54,34 +54,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
     private static final String SERVER_INFO = ServerInfo.getServerInfo() + " (HTTP/1.1 Connector)";
 
 
-    // ----------------------------------------------------------- Constructors
 
-
-    /**
-     * Construct a new HttpProcessor associated with the specified connector.
-     *
-     * @param connector HttpConnector that owns this processor
-     * @param id Identifier of this HttpProcessor (unique per connector)
-     */
-    public HttpProcessor(HttpConnector connector, int id) {
-
-        super();
-        this.connector = connector;
-        this.debug = connector.getDebug();
-        this.id = id;
-
-        //目前 没用到
-        this.proxyName = connector.getProxyName();
-        this.proxyPort = connector.getProxyPort();
-        
-        //创建HttpProcessor实例是就把request、response创建好了啊，但是没请求信息
-        this.request = (HttpRequestImpl) connector.createRequest();
-        this.response = (HttpResponseImpl) connector.createResponse();
-        
-        this.serverPort = connector.getPort();
-        this.threadName = "HttpProcessor[" + connector.getPort() + "][" + id + "]";
-
-    }
 
 
     // ----------------------------------------------------- Instance Variables
@@ -89,12 +62,17 @@ final class HttpProcessor implements Lifecycle, Runnable {
 
     /**
      * Is there a new socket available?
+     *
+     * 处理器线程刚启动时available=false, 所以处于等待状态
+     * 直到连接器线程调用HttpProcessor实例的notify()
      */
     private boolean available = false;
 
 
     /**
      * The HttpConnector with which this processor is associated.
+     *
+     * 创建 HttpProcessor 构造器传入
      */
     private HttpConnector connector = null;
 
@@ -169,8 +147,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
     /**
      * The string manager for this package.
      */
-    protected StringManager sm =
-        StringManager.getManager(Constants.Package);
+    protected StringManager sm = StringManager.getManager(Constants.Package);
 
 
     /**
@@ -182,12 +159,16 @@ final class HttpProcessor implements Lifecycle, Runnable {
 
     /**
      * Has this component been started yet?
+     *
+     *
      */
     private boolean started = false;
 
 
     /**
      * The shutdown signal to our background thread
+     *
+     *  表明该HttpProcessor实例是否被连接器终止，是的话process()应立刻 停止
      */
     private boolean stopped = false;
 
@@ -234,8 +215,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
     /**
      * Ack string when pipelining HTTP requests.
      */
-    private static final byte[] ack =
-        (new String("HTTP/1.1 100 Continue\r\n\r\n")).getBytes();
+    private static final byte[] ack = (new String("HTTP/1.1 100 Continue\r\n\r\n")).getBytes();
 
 
     /**
@@ -262,56 +242,38 @@ final class HttpProcessor implements Lifecycle, Runnable {
     private int status = Constants.PROCESSOR_IDLE;
 
 
+
+    // ----------------------------------------------------------- Constructors
+
+
+    /**
+     * Construct a new HttpProcessor associated with the specified connector.
+     *
+     * @param connector HttpConnector that owns this processor
+     * @param id Identifier of this HttpProcessor (unique per connector)
+     */
+    public HttpProcessor(HttpConnector connector, int id) {
+        super();
+        this.connector = connector;
+        this.debug = connector.getDebug();
+        this.id = id;
+
+        //目前 没用到
+        this.proxyName = connector.getProxyName();
+        this.proxyPort = connector.getProxyPort();
+
+        //创建HttpProcessor实例是就把request、response创建好了啊，但是没请求信息
+        this.request = (HttpRequestImpl) connector.createRequest();
+        this.response = (HttpResponseImpl) connector.createResponse();
+
+        this.serverPort = connector.getPort();
+        this.threadName = "HttpProcessor[" + connector.getPort() + "][" + id + "]";
+
+    }
+
     // --------------------------------------------------------- Public Methods
 
 
-    /**
-     * Return a String value representing this object.
-     */
-    public String toString() {
-
-        return (this.threadName);
-
-    }
-
-
-    // -------------------------------------------------------- Package Methods
-
-
-
-    // -------------------------------------------------------- Private Methods
-
-
-
-
-
-    /**
-     * Log a message on the Logger associated with our Container (if any)
-     *
-     * @param message Message to be logged
-     */
-    private void log(String message) {
-
-        Logger logger = connector.getContainer().getLogger();
-        if (logger != null)
-            logger.log(threadName + " " + message);
-
-    }
-
-
-    /**
-     * Log a message on the Logger associated with our Container (if any)
-     *
-     * @param message Message to be logged
-     * @param throwable Associated exception
-     */
-    private void log(String message, Throwable throwable) {
-
-        Logger logger = connector.getContainer().getLogger();
-        if (logger != null)
-            logger.log(threadName + " " + message, throwable);
-
-    }
 
 
     /**
@@ -433,6 +395,9 @@ final class HttpProcessor implements Lifecycle, Runnable {
      *
      * @exception IOException if an input/output error occurs
      * @exception ServletException if a parsing error occurs
+     *
+     *
+     *   解析连接使用的协议 HTTP1.1   HTTP1.0   HTTP0.9
      */
     private void parseConnection(Socket socket) throws IOException, ServletException {
 
@@ -478,8 +443,9 @@ final class HttpProcessor implements Lifecycle, Runnable {
             }
 
             String value = new String(header.value, 0, header.valueEnd);
-            if (debug >= 1)
+            if (debug >= 1) {
                 log(" Header " + new String(header.name, 0, header.nameEnd)  + " = " + value);
+            }
 
             // Set the corresponding request headers
             if (header.equals(DefaultHeaders.AUTHORIZATION_NAME)) {
@@ -496,9 +462,9 @@ final class HttpProcessor implements Lifecycle, Runnable {
                             request.setRequestedSessionId(cookies[i].getValue());
                             request.setRequestedSessionCookie(true);
                             request.setRequestedSessionURL(false);
-                            if (debug >= 1)
-                                log(" Requested cookie session id is " +
-                                    ((HttpServletRequest) request.getRequest()).getRequestedSessionId());
+                            if (debug >= 1) {
+                                log(" Requested cookie session id is " + ((HttpServletRequest) request.getRequest()).getRequestedSessionId());
+                            }
                         }
                     }
                     if (debug >= 1) {
@@ -538,20 +504,22 @@ final class HttpProcessor implements Lifecycle, Runnable {
                     else {
                         int port = 80;
                         try {
-                            port =
-                                Integer.parseInt(value.substring(n+1).trim());
+                            port = Integer.parseInt(value.substring(n+1).trim());
                         } catch (Exception e) {
-                            throw new ServletException
-                                (sm.getString("httpProcessor.parseHeaders.portNumber"));
+                            throw new ServletException(sm.getString("httpProcessor.parseHeaders.portNumber"));
                         }
                         request.setServerPort(port);
                     }
                 }
             } else if (header.equals(DefaultHeaders.CONNECTION_NAME)) {
+                /**
+                 *
+                 */
                 if (header.valueEquals(DefaultHeaders.CONNECTION_CLOSE_VALUE)) {
                     keepAlive = false;
                     response.setHeader("Connection", "close");
                 }
+
                 //request.setConnection(header);
                 /*
                   if ("keep-alive".equalsIgnoreCase(value)) {
@@ -559,10 +527,16 @@ final class HttpProcessor implements Lifecycle, Runnable {
                   }
                 */
             } else if (header.equals(DefaultHeaders.EXPECT_NAME)) {
-                if (header.valueEquals(DefaultHeaders.EXPECT_100_VALUE))
+                /**
+                 *  若请求头包含  Expect: 100-continue
+                 *  将 sendAck = true;
+                 */
+                if (header.valueEquals(DefaultHeaders.EXPECT_100_VALUE)) {
                     sendAck = true;
-                else
+                } else {
                     throw new ServletException(sm.getString("httpProcessor.parseHeaders.unknownExpectation"));
+                }
+
             } else if (header.equals(DefaultHeaders.TRANSFER_ENCODING_NAME)) {
                 //request.setTransferEncoding(header);
             }
@@ -793,11 +767,15 @@ final class HttpProcessor implements Lifecycle, Runnable {
      * HTTP/1.1 100 Continue is sent back to the client.
      *
      * @param output Socket output stream
+     *
+     *   若为true 发送 "HTTP/1.1 100 Continue"   HTTP1.1才有的
      */
     private void ackRequest(OutputStream output)
         throws IOException {
-        if (sendAck)
+        if (sendAck) {
             output.write(ack);
+        }
+
     }
 
 
@@ -820,10 +798,18 @@ final class HttpProcessor implements Lifecycle, Runnable {
      * swallowed and dealt with.
      *
      * @param socket The socket on which we are connected to the client
+     *
+     *
+     * 1. 解析链接
+     * 2. 解析请求
+     * 3. 解析请求头
      */
     private void process(Socket socket) {
+        // 是否有异常
         boolean ok = true;
+        // 是否调用Response.finishResponse()
         boolean finishResponse = true;
+
         SocketInputStream input = null;
         OutputStream output = null;
 
@@ -835,9 +821,11 @@ final class HttpProcessor implements Lifecycle, Runnable {
             ok = false;
         }
 
+        // 表明该连接是持久连接
         keepAlive = true;
         long s = System.currentTimeMillis();
-        
+
+        //
         while (!stopped && ok && keepAlive) {
         	//System.out.println("stopped=" +stopped + " ok=" + ok + " keepAlive=" + keepAlive);
         	
@@ -863,15 +851,21 @@ final class HttpProcessor implements Lifecycle, Runnable {
                 	//解析连接
                     parseConnection(socket);
                     parseRequest(input, output);
-                    if (!request.getRequest().getProtocol().startsWith("HTTP/0"))
+
+                    // 不是HTTP/0.9
+                    if (!request.getRequest().getProtocol().startsWith("HTTP/0")) {
                         parseHeaders(input);
+                    }
+
+                    // HTTP 1.1
                     if (http11) {
-                        // Sending a request acknowledge back to the client if
-                        // requested.
+                        // Sending a request acknowledge back to the client if  requested.
                         ackRequest(output);
-                        // If the protocol is HTTP/1.1, chunking is allowed.
-                        if (connector.isChunkingAllowed())
+
+                        // If the protocol is HTTP/1.1, chunking is allowed.  检查是否允许块发送
+                        if (connector.isChunkingAllowed()) {
                             response.setAllowChunking(true);
+                        }
                     }
 
                 }
@@ -910,7 +904,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
 
             // Ask our Container to process this request
             try {
-                ((HttpServletResponse) response).setHeader("Date", FastHttpDateFormat.getCurrentDate());
+                response.setHeader("Date", FastHttpDateFormat.getCurrentDate());
                 if (ok) {
                 	//Servlet容器 执行 servlet
                     connector.getContainer().invoke(request, response);
@@ -978,7 +972,10 @@ final class HttpProcessor implements Lifecycle, Runnable {
             request.recycle();
             response.recycle();
 
+            //while结束
         }
+
+
         System.out.println(Thread.currentThread().getName() + " process time: " + (System.currentTimeMillis()-s));
         
         try {
@@ -1007,16 +1004,24 @@ final class HttpProcessor implements Lifecycle, Runnable {
 
             // Wait for the next socket to be assigned
         	System.out.println(Thread.currentThread().getName() + " HttpProcessor await 前");
-            // assign() 方法线程通讯
+            // 没有socket时在这里等待    assign() 方法线程通讯
             Socket socket = await();
             System.out.println(Thread.currentThread().getName() + " HttpProcessor await 后   process socket = " + socket);
             
-            if (socket == null)
+            if (socket == null) {
                 continue;
+            }
 
-            // 处理socket请求
+
+
             // Process the request from this socket
             try {
+                /*
+                 * process() 做3件事情
+                 * 1. 解析链接
+                 * 2. 解析请求
+                 * 3. 解析请求头
+                 */
             	//long s = System.currentTimeMillis();
             	process(socket);
                 //System.out.println(System.currentTimeMillis()-s);
@@ -1024,7 +1029,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
                 log("process.invoke", t);
             }
 
-            // Finish up this request
+            // Finish up this request   处理完socket请求，还回去 HttpProcessor
             connector.recycle(this);
 
         }
@@ -1051,6 +1056,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
             }
         }
 
+        // 用一个局部变量Socket 接收
         // Notify the Connector that we have received this Socket
         Socket socket = this.socket;
         available = false;
@@ -1060,7 +1066,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
             log("  The incoming request has been awaited");
         }
 
-        return (socket);
+        return socket;
 
     }
     
@@ -1213,6 +1219,49 @@ final class HttpProcessor implements Lifecycle, Runnable {
         started = false;
 
         threadStop();
+
+    }
+
+
+
+
+    /**
+     * Return a String value representing this object.
+     */
+    public String toString() {
+
+        return (this.threadName);
+
+    }
+
+
+
+
+    /**
+     * Log a message on the Logger associated with our Container (if any)
+     *
+     * @param message Message to be logged
+     */
+    private void log(String message) {
+
+        Logger logger = connector.getContainer().getLogger();
+        if (logger != null)
+            logger.log(threadName + " " + message);
+
+    }
+
+
+    /**
+     * Log a message on the Logger associated with our Container (if any)
+     *
+     * @param message Message to be logged
+     * @param throwable Associated exception
+     */
+    private void log(String message, Throwable throwable) {
+
+        Logger logger = connector.getContainer().getLogger();
+        if (logger != null)
+            logger.log(threadName + " " + message, throwable);
 
     }
 
