@@ -78,6 +78,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
 
     /**
      * The set of processors that have ever been created.
+     *
      */
     private Vector created = new Vector();
 
@@ -109,8 +110,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
     /**
      * Descriptive information about this Connector implementation.
      */
-    private static final String info =
-        "org.apache.catalina.connector.http.HttpConnector/1.0";
+    private static final String info = "org.apache.catalina.connector.http.HttpConnector/1.0";
 
 
     /**
@@ -810,46 +810,6 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
 
 
     /**
-     * Log a message on the Logger associated with our Container (if any).
-     *
-     * @param message Message to be logged
-     */
-    private void log(String message) {
-        Logger logger = container.getLogger();
-        String localName = threadName;
-        if (localName == null)
-            localName = "HttpConnector";
-        if (logger != null)
-            logger.log(localName + " " + message);
-        else
-            System.out.println(localName + " " + message);
-
-    }
-
-
-    /**
-     * Log a message on the Logger associated with our Container (if any).
-     *
-     * @param message Message to be logged
-     * @param throwable Associated exception
-     */
-    private void log(String message, Throwable throwable) {
-
-        Logger logger = container.getLogger();
-        String localName = threadName;
-        if (localName == null)
-            localName = "HttpConnector";
-        if (logger != null)
-            logger.log(localName + " " + message, throwable);
-        else {
-            System.out.println(localName + " " + message);
-            throwable.printStackTrace(System.out);
-        }
-
-    }
-
-
-    /**
      * Create and return a new processor suitable for processing HTTP
      * requests and returning the corresponding responses.
      */
@@ -860,72 +820,16 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
         HttpProcessor processor = new HttpProcessor(this, curProcessors++);
         if (processor instanceof Lifecycle) {
             try {
-            	//启动处理器线程
+            	//创建一个HttpProcessor直接就启动处理器线程
                 ((Lifecycle) processor).start();
             } catch (LifecycleException e) {
                 log("newProcessor", e);
                 return (null);
             }
         }
+
         created.addElement(processor);
         return (processor);
-
-    }
-
-
-    /**
-     * Open and return the server socket for this Connector.  If an IP
-     * address has been specified, the socket will be opened only on that
-     * address; otherwise it will be opened on all addresses.
-     *
-     * @exception IOException                input/output or network error
-     * @exception KeyStoreException          error instantiating the
-     *                                       KeyStore from file (SSL only)
-     * @exception NoSuchAlgorithmException   KeyStore algorithm unsupported
-     *                                       by current provider (SSL only)
-     * @exception CertificateException       general certificate error (SSL only)
-     * @exception UnrecoverableKeyException  internal KeyStore problem with
-     *                                       the certificate (SSL only)
-     * @exception KeyManagementException     problem in the key management
-     *                                       layer (SSL only)
-     */
-    private ServerSocket open()
-    throws IOException, KeyStoreException, NoSuchAlgorithmException,
-           CertificateException, UnrecoverableKeyException,
-           KeyManagementException
-    {
-
-        // Acquire the server socket factory for this Connector
-        ServerSocketFactory factory = getFactory();
-
-        // If no address is specified, open a connection on all addresses
-        if (address == null) {
-            log(sm.getString("httpConnector.allAddresses"));
-            try {
-                return (factory.createSocket(port, acceptCount));
-            } catch (BindException be) {
-                throw new BindException(be.getMessage() + ":" + port);
-            }
-        }
-
-        // Open a server socket on the specified address
-        try {
-            InetAddress is = InetAddress.getByName(address);
-            log(sm.getString("httpConnector.anAddress", address));
-            try {
-                return (factory.createSocket(port, acceptCount, is));
-            } catch (BindException be) {
-                throw new BindException(be.getMessage() + ":" + address +
-                                        ":" + port);
-            }
-        } catch (Exception e) {
-            log(sm.getString("httpConnector.noAddress", address));
-            try {
-                return (factory.createSocket(port, acceptCount));
-            } catch (BindException be) {
-                throw new BindException(be.getMessage() + ":" + port);
-            }
-        }
 
     }
 
@@ -1005,12 +909,13 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
             // Hand this socket off to an appropriate processor
             HttpProcessor processor = createProcessor();
             //System.out.println(Thread.currentThread().getName() + " 获取处理器  processor = " + processor);
-            
+
+            //池子已经满了  服务器就不处理新的HTTP请求了，直接关闭socket
             if (processor == null) {
                 try {
                     log(sm.getString("httpConnector.noProcessor"));
                     System.out.println(Thread.currentThread().getName() + " 池子满了  关闭请求"); 
-                    socket.close();  //池子已经满了  服务器就不处理新的HTTP请求了，直接关闭socket
+                    socket.close();
                 } catch (IOException e) {
                     ;
                 }
@@ -1105,6 +1010,63 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
     }
 
 
+
+    /**
+     * Open and return the server socket for this Connector.  If an IP
+     * address has been specified, the socket will be opened only on that
+     * address; otherwise it will be opened on all addresses.
+     *
+     * @exception IOException                input/output or network error
+     * @exception KeyStoreException          error instantiating the
+     *                                       KeyStore from file (SSL only)
+     * @exception NoSuchAlgorithmException   KeyStore algorithm unsupported
+     *                                       by current provider (SSL only)
+     * @exception CertificateException       general certificate error (SSL only)
+     * @exception UnrecoverableKeyException  internal KeyStore problem with
+     *                                       the certificate (SSL only)
+     * @exception KeyManagementException     problem in the key management
+     *                                       layer (SSL only)
+     *
+     *   使用工厂设计模式创建一个ServerSocket
+     */
+    private ServerSocket open() throws
+            IOException, KeyStoreException, NoSuchAlgorithmException,
+            CertificateException, UnrecoverableKeyException,
+            KeyManagementException {
+
+        // Acquire the server socket factory for this Connector
+        ServerSocketFactory factory = getFactory();
+
+        // If no address is specified, open a connection on all addresses
+        if (address == null) {
+            log(sm.getString("httpConnector.allAddresses"));
+            try {
+                return (factory.createSocket(port, acceptCount));
+            } catch (BindException be) {
+                throw new BindException(be.getMessage() + ":" + port);
+            }
+        }
+
+        // Open a server socket on the specified address
+        try {
+            InetAddress is = InetAddress.getByName(address);
+            log(sm.getString("httpConnector.anAddress", address));
+            try {
+                return (factory.createSocket(port, acceptCount, is));
+            } catch (BindException be) {
+                throw new BindException(be.getMessage() + ":" + address + ":" + port);
+            }
+        } catch (Exception e) {
+            log(sm.getString("httpConnector.noAddress", address));
+            try {
+                return (factory.createSocket(port, acceptCount));
+            } catch (BindException be) {
+                throw new BindException(be.getMessage() + ":" + port);
+            }
+        }
+
+    }
+
     /**
      * Initialize this connector (create ServerSocket here!)
      */
@@ -1139,8 +1101,9 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
             eRethrow = kme;
         }
 
-        if (eRethrow != null)
+        if (eRethrow != null) {
             throw new LifecycleException(threadName + ".open", eRethrow);
+        }
 
     }
 
@@ -1215,6 +1178,51 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
             threadStop();
         }
         serverSocket = null;
+
+    }
+
+
+
+
+
+
+    /**
+     * Log a message on the Logger associated with our Container (if any).
+     *
+     * @param message Message to be logged
+     */
+    private void log(String message) {
+        // 调用servlet容器里的Logger
+        Logger logger = container.getLogger();
+        String localName = threadName;
+        if (localName == null)
+            localName = "HttpConnector";
+        if (logger != null)
+            logger.log(localName + " " + message);
+        else
+            System.out.println(localName + " " + message);
+
+    }
+
+
+    /**
+     * Log a message on the Logger associated with our Container (if any).
+     *
+     * @param message Message to be logged
+     * @param throwable Associated exception
+     */
+    private void log(String message, Throwable throwable) {
+        // 调用servlet容器里的Logger
+        Logger logger = container.getLogger();
+        String localName = threadName;
+        if (localName == null)
+            localName = "HttpConnector";
+        if (logger != null) {
+            logger.log(localName + " " + message, throwable);
+        } else {
+            System.out.println(localName + " " + message);
+            throwable.printStackTrace(System.out);
+        }
 
     }
 

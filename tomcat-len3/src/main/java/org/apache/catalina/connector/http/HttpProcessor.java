@@ -69,6 +69,8 @@ final class HttpProcessor implements Lifecycle, Runnable {
         this.connector = connector;
         this.debug = connector.getDebug();
         this.id = id;
+
+        //目前 没用到
         this.proxyName = connector.getProxyName();
         this.proxyPort = connector.getProxyPort();
         
@@ -432,16 +434,19 @@ final class HttpProcessor implements Lifecycle, Runnable {
      * @exception IOException if an input/output error occurs
      * @exception ServletException if a parsing error occurs
      */
-    private void parseConnection(Socket socket)
-        throws IOException, ServletException {
+    private void parseConnection(Socket socket) throws IOException, ServletException {
 
-        if (debug >= 2)
+        if (debug >= 2) {
             log("  parseConnection: address=" + socket.getInetAddress() + ", port=" + connector.getPort());
+        }
+
         ((HttpRequestImpl) request).setInet(socket.getInetAddress());
-        if (proxyPort != 0)
+        if (proxyPort != 0) {
             request.setServerPort(proxyPort);
-        else
+        } else {
             request.setServerPort(serverPort);
+        }
+
         request.setSocket(socket);
 
     }
@@ -484,13 +489,11 @@ final class HttpProcessor implements Lifecycle, Runnable {
             } else if (header.equals(DefaultHeaders.COOKIE_NAME)) {
                 Cookie cookies[] = RequestUtil.parseCookieHeader(value);
                 for (int i = 0; i < cookies.length; i++) {
-                    if (cookies[i].getName().equals
-                        (Globals.SESSION_COOKIE_NAME)) {
+                    if (cookies[i].getName().equals(Globals.SESSION_COOKIE_NAME)) {
                         // Override anything requested in the URL
                         if (!request.isRequestedSessionIdFromCookie()) {
                             // Accept only the first session id cookie
-                            request.setRequestedSessionId
-                                (cookies[i].getValue());
+                            request.setRequestedSessionId(cookies[i].getValue());
                             request.setRequestedSessionCookie(true);
                             request.setRequestedSessionURL(false);
                             if (debug >= 1)
@@ -498,8 +501,9 @@ final class HttpProcessor implements Lifecycle, Runnable {
                                     ((HttpServletRequest) request.getRequest()).getRequestedSessionId());
                         }
                     }
-                    if (debug >= 1)
+                    if (debug >= 1) {
                         log(" Adding cookie " + cookies[i].getName() + "=" + cookies[i].getValue());
+                    }
                     request.addCookie(cookies[i]);
                 }
             } else if (header.equals(DefaultHeaders.CONTENT_LENGTH_NAME)) {
@@ -507,9 +511,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
                 try {
                     n = Integer.parseInt(value);
                 } catch (Exception e) {
-                    throw new ServletException
-                        (sm.getString
-                         ("httpProcessor.parseHeaders.contentLength"));
+                    throw new ServletException(sm.getString("httpProcessor.parseHeaders.contentLength"));
                 }
                 request.setContentLength(n);
             } else if (header.equals(DefaultHeaders.CONTENT_TYPE_NAME)) {
@@ -560,8 +562,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
                 if (header.valueEquals(DefaultHeaders.EXPECT_100_VALUE))
                     sendAck = true;
                 else
-                    throw new ServletException
-                        (sm.getString("httpProcessor.parseHeaders.unknownExpectation"));
+                    throw new ServletException(sm.getString("httpProcessor.parseHeaders.unknownExpectation"));
             } else if (header.equals(DefaultHeaders.TRANSFER_ENCODING_NAME)) {
                 //request.setTransferEncoding(header);
             }
