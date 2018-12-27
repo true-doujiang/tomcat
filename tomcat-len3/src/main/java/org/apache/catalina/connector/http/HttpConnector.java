@@ -44,6 +44,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
 
     // ----------------------------------------------------- Instance Variables
 
+    private int countSocket;
 
     /**
      * The <code>Service</code> we are associated with (if any).
@@ -851,9 +852,9 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
             try {
                 //                if (debug >= 3)
                 //                    log("run: Waiting on serverSocket.accept()");
-            	System.err.println(Thread.currentThread().getName() + " 连接器线程  +++等待+++ serverSocket.accept() ");
+            	//System.err.println(Thread.currentThread().getName() + " 连接器线程  等待 Socket ");
                 socket = serverSocket.accept();
-                System.err.println(Thread.currentThread().getName() + " 连接器线程  ===收到=== connect      socket = " + socket);
+                System.err.println(Thread.currentThread().getName() + " 连接器线程  收到 Socket " + (++countSocket) + " = " + socket);
                 
                 //                if (debug >= 3)
                 //                    log("run: Returned from serverSocket.accept()");

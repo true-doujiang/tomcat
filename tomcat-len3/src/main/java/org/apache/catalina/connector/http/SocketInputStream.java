@@ -131,16 +131,19 @@ public class SocketInputStream extends InputStream {
 
         // Checking for a blank line
         int chr = 0;
-        do { // Skipping CR or LF
+        do {
+            // Skipping CR or LF
             try {
+                /**
+                 * jconsole看到线程是阻塞在这里
+                 */
                 chr = read();
             } catch (IOException e) {
                 chr = -1;
             }
         } while ((chr == CR) || (chr == LF));
         if (chr == -1)
-            throw new EOFException
-                (sm.getString("requestStream.readline.error"));
+            throw new EOFException(sm.getString("requestStream.readline.error"));
         pos--;
 
         // Reading the method name
@@ -156,21 +159,18 @@ public class SocketInputStream extends InputStream {
             if (readCount >= maxRead) {
                 if ((2 * maxRead) <= HttpRequestLine.MAX_METHOD_SIZE) {
                     char[] newBuffer = new char[2 * maxRead];
-                    System.arraycopy(requestLine.method, 0, newBuffer, 0,
-                                     maxRead);
+                    System.arraycopy(requestLine.method, 0, newBuffer, 0, maxRead);
                     requestLine.method = newBuffer;
                     maxRead = requestLine.method.length;
                 } else {
-                    throw new IOException
-                        (sm.getString("requestStream.readline.toolong"));
+                    throw new IOException(sm.getString("requestStream.readline.toolong"));
                 }
             }
             // We're at the end of the internal buffer
             if (pos >= count) {
                 int val = read();
                 if (val == -1) {
-                    throw new IOException
-                        (sm.getString("requestStream.readline.error"));
+                    throw new IOException(sm.getString("requestStream.readline.error"));
                 }
                 pos = 0;
                 readStart = 0;
@@ -200,21 +200,18 @@ public class SocketInputStream extends InputStream {
             if (readCount >= maxRead) {
                 if ((2 * maxRead) <= HttpRequestLine.MAX_URI_SIZE) {
                     char[] newBuffer = new char[2 * maxRead];
-                    System.arraycopy(requestLine.uri, 0, newBuffer, 0,
-                                     maxRead);
+                    System.arraycopy(requestLine.uri, 0, newBuffer, 0, maxRead);
                     requestLine.uri = newBuffer;
                     maxRead = requestLine.uri.length;
                 } else {
-                    throw new IOException
-                        (sm.getString("requestStream.readline.toolong"));
+                    throw new IOException(sm.getString("requestStream.readline.toolong"));
                 }
             }
             // We're at the end of the internal buffer
             if (pos >= count) {
                 int val = read();
                 if (val == -1)
-                    throw new IOException
-                        (sm.getString("requestStream.readline.error"));
+                    throw new IOException(sm.getString("requestStream.readline.error"));
                 pos = 0;
                 readStart = 0;
             }
@@ -243,13 +240,11 @@ public class SocketInputStream extends InputStream {
             if (readCount >= maxRead) {
                 if ((2 * maxRead) <= HttpRequestLine.MAX_PROTOCOL_SIZE) {
                     char[] newBuffer = new char[2 * maxRead];
-                    System.arraycopy(requestLine.protocol, 0, newBuffer, 0,
-                                     maxRead);
+                    System.arraycopy(requestLine.protocol, 0, newBuffer, 0, maxRead);
                     requestLine.protocol = newBuffer;
                     maxRead = requestLine.protocol.length;
                 } else {
-                    throw new IOException
-                        (sm.getString("requestStream.readline.toolong"));
+                    throw new IOException(sm.getString("requestStream.readline.toolong"));
                 }
             }
             // We're at the end of the internal buffer
@@ -258,8 +253,7 @@ public class SocketInputStream extends InputStream {
                 // buffer
                 int val = read();
                 if (val == -1)
-                    throw new IOException
-                        (sm.getString("requestStream.readline.error"));
+                    throw new IOException(sm.getString("requestStream.readline.error"));
                 pos = 0;
                 readStart = 0;
             }
@@ -527,7 +521,13 @@ public class SocketInputStream extends InputStream {
         throws IOException {
         pos = 0;
         count = 0;
+
+        System.out.println(Thread.currentThread().getName() + "  nRead 之前 ");
+        // 长连接的原因在这里  阻塞read()  估计最终是 客户端断开的连接 但是线程并没有往下再执行
         int nRead = is.read(buf, 0, buf.length);
+
+        System.out.println(Thread.currentThread().getName() + " 长连接结束时 最后为什么不执行我呢 nRead= " + nRead);
+
         if (nRead > 0) {
             count = nRead;
         }

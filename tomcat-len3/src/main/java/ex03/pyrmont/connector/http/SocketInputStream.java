@@ -522,6 +522,11 @@ public class SocketInputStream extends InputStream {
         pos = 0;
         count = 0;
         int nRead = is.read(buf, 0, buf.length);
+
+        if (nRead <= 0) {
+            System.out.println(Thread.currentThread().getName() + " nRead= " + nRead);
+        }
+
         if (nRead > 0) {
             count = nRead;
         }

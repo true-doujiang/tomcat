@@ -5,6 +5,7 @@ import org.apache.catalina.connector.http.HttpConnector;
 
 import ex04.pyrmont.core.SimpleContainer;
 
+
 /**
  * 疑问1 socket 什么时候关闭的? 在 HttpProcessor.process()
  * 疑问2 浏览器已经显示servlet的输出了   为什么 HttpProcessor.process() 还没有执行完呢   而且执行了很久 1m
@@ -36,8 +37,9 @@ public final class Bootstrap {
 			connector.start();
 
 			// make the application wait until we press any key.
-			System.in.read();
-		} catch (Exception e) {
+            int read = System.in.read();
+            System.out.println(read);
+        } catch (Exception e) {
 			e.printStackTrace();
 		}
 		

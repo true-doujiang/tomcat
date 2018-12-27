@@ -122,6 +122,8 @@ final class HttpRequestImpl extends HttpRequestBase {
     /**
      * Release all object references, and initialize instance variables, in
      * preparation for reuse of this object.
+     *
+     *  重新初始化Request便于同一个长连接的下一个请求使用
      */
     public void recycle() {
 
@@ -156,8 +158,7 @@ final class HttpRequestImpl extends HttpRequestBase {
     HttpHeader allocateHeader() {
         if (nextHeader == headerPool.length) {
             // Grow the pool
-            HttpHeader[] newHeaderPool =
-                new HttpHeader[headerPool.length + POOL_SIZE_INCREMENT];
+            HttpHeader[] newHeaderPool = new HttpHeader[headerPool.length + POOL_SIZE_INCREMENT];
             for (int i = 0; i < nextHeader; i++) {
                 newHeaderPool[i] = headerPool[i];
             }
@@ -165,6 +166,7 @@ final class HttpRequestImpl extends HttpRequestBase {
         }
         if (headerPool[nextHeader] == null)
             headerPool[nextHeader] = new HttpHeader();
+
         return headerPool[nextHeader];
     }
 

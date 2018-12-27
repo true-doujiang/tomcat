@@ -267,8 +267,8 @@ final class HttpProcessor implements Lifecycle, Runnable {
         this.response = (HttpResponseImpl) connector.createResponse();
 
         this.serverPort = connector.getPort();
-        this.threadName = "HttpProcessor[" + connector.getPort() + "][" + id + "]";
-
+        //this.threadName = "HttpProcessor[" + connector.getPort() + "][" + id + "]";
+        this.threadName = "HttpProcessor[" + id + "]";
     }
 
     // --------------------------------------------------------- Public Methods
@@ -417,6 +417,130 @@ final class HttpProcessor implements Lifecycle, Runnable {
     }
 
 
+
+    /**
+     * Parse the incoming HTTP request and set the corresponding HTTP request
+     * properties.
+     *
+     * @param input The input stream attached to our socket
+     * @param output The output stream of the socket
+     *
+     * @exception IOException if an input/output error occurs
+     * @exception ServletException if a parsing error occurs
+     */
+    private void parseRequest(SocketInputStream input, OutputStream output)
+            throws IOException, ServletException {
+
+        // Parse the incoming request line
+        input.readRequestLine(requestLine);
+
+        // When the previous method returns, we're actually processing a
+        // request
+        status = Constants.PROCESSOR_ACTIVE;
+
+        String method = new String(requestLine.method, 0, requestLine.methodEnd);
+        String uri = null;
+        String protocol = new String(requestLine.protocol, 0, requestLine.protocolEnd);
+
+        //System.out.println(" Method:" + method + "_ Uri:" + uri + "_ Protocol:" + protocol);
+
+        if (protocol.length() == 0)
+            protocol = "HTTP/0.9";
+
+        // Now check if the connection should be kept alive after parsing the
+        // request.
+        if ( protocol.equals("HTTP/1.1") ) {
+            http11 = true;
+            sendAck = false;
+        } else {
+            http11 = false;
+            sendAck = false;
+            // For HTTP/1.0, connection are not persistent by default,
+            // unless specified with a Connection: Keep-Alive header.
+            keepAlive = false;
+        }
+
+        // Validate the incoming request line
+        if (method.length() < 1) {
+            throw new ServletException(sm.getString("httpProcessor.parseRequest.method"));
+        } else if (requestLine.uriEnd < 1) {
+            throw new ServletException(sm.getString("httpProcessor.parseRequest.uri"));
+        }
+
+        // Parse any query parameters out of the request URI
+        int question = requestLine.indexOf("?");
+        if (question >= 0) {
+            request.setQueryString(new String(requestLine.uri, question + 1, requestLine.uriEnd - question - 1));
+            if (debug >= 1) {
+                log(" Query string is " + ((HttpServletRequest) request.getRequest()).getQueryString());
+            }
+            uri = new String(requestLine.uri, 0, question);
+        } else {
+            request.setQueryString(null);
+            uri = new String(requestLine.uri, 0, requestLine.uriEnd);
+        }
+
+        // Checking for an absolute URI (with the HTTP protocol)
+        if (!uri.startsWith("/")) {
+            int pos = uri.indexOf("://");
+            // Parsing out protocol and host name
+            if (pos != -1) {
+                pos = uri.indexOf('/', pos + 3);
+                if (pos == -1) {
+                    uri = "";
+                } else {
+                    uri = uri.substring(pos);
+                }
+            }
+        }
+
+        // Parse any requested session ID out of the request URI
+        int semicolon = uri.indexOf(match);
+        if (semicolon >= 0) {
+            String rest = uri.substring(semicolon + match.length());
+            int semicolon2 = rest.indexOf(';');
+            if (semicolon2 >= 0) {
+                request.setRequestedSessionId(rest.substring(0, semicolon2));
+                rest = rest.substring(semicolon2);
+            } else {
+                request.setRequestedSessionId(rest);
+                rest = "";
+            }
+            request.setRequestedSessionURL(true);
+            uri = uri.substring(0, semicolon) + rest;
+            if (debug >= 1)
+                log(" Requested URL session id is " + ((HttpServletRequest) request.getRequest()).getRequestedSessionId());
+        } else {
+            request.setRequestedSessionId(null);
+            request.setRequestedSessionURL(false);
+        }
+
+        // Normalize URI (using String operations at the moment)
+        String normalizedUri = normalize(uri);
+        if (debug >= 1)
+            log("Normalized: '" + uri + "' to '" + normalizedUri + "'");
+
+        // Set the corresponding request properties
+        ((HttpRequest) request).setMethod(method);
+        request.setProtocol(protocol);
+        if (normalizedUri != null) {
+            ((HttpRequest) request).setRequestURI(normalizedUri);
+        } else {
+            ((HttpRequest) request).setRequestURI(uri);
+        }
+        request.setSecure(connector.getSecure());
+        request.setScheme(connector.getScheme());
+
+        if (normalizedUri == null) {
+            log(" Invalid request URI: '" + uri + "'");
+            throw new ServletException("Invalid URI: " + uri + "'");
+        }
+
+        if (debug >= 1)
+            log(" Request is '" + method + "' for '" + uri + "' with protocol '" + protocol + "'");
+
+    }
+
     /**
      * Parse the incoming HTTP request headers, and set the appropriate
      * request headers.
@@ -425,6 +549,8 @@ final class HttpProcessor implements Lifecycle, Runnable {
      *
      * @exception IOException if an input/output error occurs
      * @exception ServletException if a parsing error occurs
+     *
+     *  解析请求头
      */
     private void parseHeaders(SocketInputStream input) throws IOException, ServletException {
 
@@ -434,6 +560,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
 
             // Read the next header
             input.readHeader(header);
+
             if (header.nameEnd == 0) {
                 if (header.valueEnd == 0) {
                     return;
@@ -443,6 +570,8 @@ final class HttpProcessor implements Lifecycle, Runnable {
             }
 
             String value = new String(header.value, 0, header.valueEnd);
+            System.out.println(Thread.currentThread().getName() + " Header = " + value);
+
             if (debug >= 1) {
                 log(" Header " + new String(header.name, 0, header.nameEnd)  + " = " + value);
             }
@@ -485,20 +614,25 @@ final class HttpProcessor implements Lifecycle, Runnable {
             } else if (header.equals(DefaultHeaders.HOST_NAME)) {
                 int n = value.indexOf(':');
                 if (n < 0) {
+
                     if (connector.getScheme().equals("http")) {
                         request.setServerPort(80);
                     } else if (connector.getScheme().equals("https")) {
                         request.setServerPort(443);
                     }
-                    if (proxyName != null)
+
+                    if (proxyName != null) {
                         request.setServerName(proxyName);
-                    else
+                    } else {
                         request.setServerName(value);
+                    }
                 } else {
+
                     if (proxyName != null)
                         request.setServerName(proxyName);
                     else
                         request.setServerName(value.substring(0, n).trim());
+
                     if (proxyPort != 0)
                         request.setServerPort(proxyPort);
                     else {
@@ -544,136 +678,6 @@ final class HttpProcessor implements Lifecycle, Runnable {
             request.nextHeader();
 
         }
-
-    }
-
-
-    /**
-     * Parse the incoming HTTP request and set the corresponding HTTP request
-     * properties.
-     *
-     * @param input The input stream attached to our socket
-     * @param output The output stream of the socket
-     *
-     * @exception IOException if an input/output error occurs
-     * @exception ServletException if a parsing error occurs
-     */
-    private void parseRequest(SocketInputStream input, OutputStream output)
-        throws IOException, ServletException {
-
-        // Parse the incoming request line
-        input.readRequestLine(requestLine);
-
-        // When the previous method returns, we're actually processing a
-        // request
-        status = Constants.PROCESSOR_ACTIVE;
-
-        String method = new String(requestLine.method, 0, requestLine.methodEnd);
-        String uri = null;
-        String protocol = new String(requestLine.protocol, 0, requestLine.protocolEnd);
-
-        //System.out.println(" Method:" + method + "_ Uri:" + uri + "_ Protocol:" + protocol);
-
-        if (protocol.length() == 0)
-            protocol = "HTTP/0.9";
-
-        // Now check if the connection should be kept alive after parsing the
-        // request.
-        if ( protocol.equals("HTTP/1.1") ) {
-            http11 = true;
-            sendAck = false;
-        } else {
-            http11 = false;
-            sendAck = false;
-            // For HTTP/1.0, connection are not persistent by default,
-            // unless specified with a Connection: Keep-Alive header.
-            keepAlive = false;
-        }
-
-        // Validate the incoming request line
-        if (method.length() < 1) {
-            throw new ServletException(sm.getString("httpProcessor.parseRequest.method"));
-        } else if (requestLine.uriEnd < 1) {
-            throw new ServletException(sm.getString("httpProcessor.parseRequest.uri"));
-        }
-
-        // Parse any query parameters out of the request URI
-        int question = requestLine.indexOf("?");
-        if (question >= 0) {
-            request.setQueryString
-                (new String(requestLine.uri, question + 1,
-                            requestLine.uriEnd - question - 1));
-            if (debug >= 1)
-                log(" Query string is " +
-                    ((HttpServletRequest) request.getRequest())
-                    .getQueryString());
-            uri = new String(requestLine.uri, 0, question);
-        } else {
-            request.setQueryString(null);
-            uri = new String(requestLine.uri, 0, requestLine.uriEnd);
-        }
-
-        // Checking for an absolute URI (with the HTTP protocol)
-        if (!uri.startsWith("/")) {
-            int pos = uri.indexOf("://");
-            // Parsing out protocol and host name
-            if (pos != -1) {
-                pos = uri.indexOf('/', pos + 3);
-                if (pos == -1) {
-                    uri = "";
-                } else {
-                    uri = uri.substring(pos);
-                }
-            }
-        }
-
-        // Parse any requested session ID out of the request URI
-        int semicolon = uri.indexOf(match);
-        if (semicolon >= 0) {
-            String rest = uri.substring(semicolon + match.length());
-            int semicolon2 = rest.indexOf(';');
-            if (semicolon2 >= 0) {
-                request.setRequestedSessionId(rest.substring(0, semicolon2));
-                rest = rest.substring(semicolon2);
-            } else {
-                request.setRequestedSessionId(rest);
-                rest = "";
-            }
-            request.setRequestedSessionURL(true);
-            uri = uri.substring(0, semicolon) + rest;
-            if (debug >= 1)
-                log(" Requested URL session id is " +
-                    ((HttpServletRequest) request.getRequest())
-                    .getRequestedSessionId());
-        } else {
-            request.setRequestedSessionId(null);
-            request.setRequestedSessionURL(false);
-        }
-
-        // Normalize URI (using String operations at the moment)
-        String normalizedUri = normalize(uri);
-        if (debug >= 1)
-            log("Normalized: '" + uri + "' to '" + normalizedUri + "'");
-
-        // Set the corresponding request properties
-        ((HttpRequest) request).setMethod(method);
-        request.setProtocol(protocol);
-        if (normalizedUri != null) {
-            ((HttpRequest) request).setRequestURI(normalizedUri);
-        } else {
-            ((HttpRequest) request).setRequestURI(uri);
-        }
-        request.setSecure(connector.getSecure());
-        request.setScheme(connector.getScheme());
-
-        if (normalizedUri == null) {
-            log(" Invalid request URI: '" + uri + "'");
-            throw new ServletException("Invalid URI: " + uri + "'");
-        }
-
-        if (debug >= 1)
-            log(" Request is '" + method + "' for '" + uri +
-                "' with protocol '" + protocol + "'");
 
     }
 
@@ -815,6 +819,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
 
         // Construct and initialize the objects we will need
         try {
+            //
             input = new SocketInputStream(socket.getInputStream(), connector.getBufferSize());
         } catch (Exception e) {
             log("process.create", e);
@@ -825,7 +830,11 @@ final class HttpProcessor implements Lifecycle, Runnable {
         keepAlive = true;
         long s = System.currentTimeMillis();
 
-        //
+        /**
+         * 1. 长连接期间 都是在while内 循环
+         * 2. 长连接期间 request response 使用的同一个
+         *
+         */
         while (!stopped && ok && keepAlive) {
         	//System.out.println("stopped=" +stopped + " ok=" + ok + " keepAlive=" + keepAlive);
         	
@@ -848,12 +857,16 @@ final class HttpProcessor implements Lifecycle, Runnable {
             // Parse the incoming request
             try {
                 if (ok) {
-                	//解析连接
+                	// 1. 解析链接
                     parseConnection(socket);
+                    // 2. 解析请求 uri queryString   这里可以让Socket保持长连接???
                     parseRequest(input, output);
+
+                    System.out.println(Thread.currentThread().getName() + " 请求uri= " + request.getRequestURI() + " 请求参数= " + request.getQueryString());
 
                     // 不是HTTP/0.9
                     if (!request.getRequest().getProtocol().startsWith("HTTP/0")) {
+                        // 3. 解析请求头
                         parseHeaders(input);
                     }
 
@@ -867,7 +880,6 @@ final class HttpProcessor implements Lifecycle, Runnable {
                             response.setAllowChunking(true);
                         }
                     }
-
                 }
             } catch (EOFException e) {
                 // It's very likely to be a socket disconnect on either the
@@ -877,8 +889,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
             } catch (ServletException e) {
                 ok = false;
                 try {
-                    ((HttpServletResponse) response.getResponse())
-                        .sendError(HttpServletResponse.SC_BAD_REQUEST);
+                    ((HttpServletResponse) response.getResponse()).sendError(HttpServletResponse.SC_BAD_REQUEST);
                 } catch (Exception f) {
                     ;
                 }
@@ -906,6 +917,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
             try {
                 response.setHeader("Date", FastHttpDateFormat.getCurrentDate());
                 if (ok) {
+                    System.out.println(Thread.currentThread().getName() + " 开始执行Servlet ");
                 	//Servlet容器 执行 servlet
                     connector.getContainer().invoke(request, response);
                 }
@@ -969,18 +981,17 @@ final class HttpProcessor implements Lifecycle, Runnable {
             status = Constants.PROCESSOR_IDLE;
 
             // Recycling the request and the response objects
+            // 重新初始化Request便于同一个长连接的下一个请求使用
             request.recycle();
             response.recycle();
 
             //while结束
         }
 
-
         System.out.println(Thread.currentThread().getName() + " process time: " + (System.currentTimeMillis()-s));
         
         try {
             shutdownInput(input);
-            System.out.println(Thread.currentThread().getName() + " 关闭 socket = " + socket);
             socket.close();
         } catch (IOException e) {
             ;
@@ -1003,10 +1014,9 @@ final class HttpProcessor implements Lifecycle, Runnable {
         while (!stopped) {
 
             // Wait for the next socket to be assigned
-        	System.out.println(Thread.currentThread().getName() + " HttpProcessor await 前");
             // 没有socket时在这里等待    assign() 方法线程通讯
             Socket socket = await();
-            System.out.println(Thread.currentThread().getName() + " HttpProcessor await 后   process socket = " + socket);
+            System.out.println(Thread.currentThread().getName() + "  HttpProcessor 被唤醒 处理 Socket = " + socket);
             
             if (socket == null) {
                 continue;
@@ -1031,7 +1041,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
 
             // Finish up this request   处理完socket请求，还回去 HttpProcessor
             connector.recycle(this);
-
+            System.out.println(Thread.currentThread().getName() + " HttpProcessor 归还 处理完毕 Socket = " + socket);
         }
 
         // Tell threadStop() we have shut ourselves down successfully
@@ -1084,7 +1094,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
      */
     synchronized void assign(Socket socket) {
 
-    	System.out.println(Thread.currentThread().getName() + " assign socket " + (available ? " wait() " : " success and notifyAll()"));
+    	System.err.println(Thread.currentThread().getName() + " 传递Socket给连接器 available = " + available);
         // Wait for the Processor to get the previous Socket
         while (available) {
             try {

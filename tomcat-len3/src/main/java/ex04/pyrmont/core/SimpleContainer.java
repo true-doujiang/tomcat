@@ -59,7 +59,8 @@ public class SimpleContainer implements Container {
 		try {
 			myClass = loader.loadClass(servletName);
 		} catch (ClassNotFoundException e) {
-			System.out.println(e.toString());
+			//System.out.println(e.toString());
+            e.printStackTrace();
 		}
 
 		Servlet servlet = null;
@@ -69,7 +70,7 @@ public class SimpleContainer implements Container {
 			servlet = (Servlet) myClass.newInstance();
 			HttpServletRequest req = (HttpServletRequest) request;
 			
-			System.out.println(Thread.currentThread().getName() + " Servlet容器执行  servlet = " + servlet + " 参数: ");
+			//System.out.println(Thread.currentThread().getName() + " Servlet容器执行  servlet = " + servlet + " 参数: ");
 //			Enumeration parameters = req.getParameterNames();
 //	        while (parameters.hasMoreElements()) {
 //	            String parameter = (String) parameters.nextElement();
@@ -78,9 +79,11 @@ public class SimpleContainer implements Container {
 	        
 			servlet.service(req, (HttpServletResponse) response);
 		} catch (Exception e) {
-			System.out.println(e.toString());
+			//System.out.println(e.toString());
+            e.printStackTrace();
 		} catch (Throwable e) {
-			System.out.println(e.toString());
+			//System.out.println(e.toString());
+            e.printStackTrace();
 		}
 	}
 
