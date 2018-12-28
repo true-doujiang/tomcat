@@ -131,8 +131,7 @@ import org.apache.tomcat.util.log.SystemLogHandler;
  * @version $Revision: 1.112 $ $Date: 2002/09/09 14:39:37 $
  */
 
-public class StandardContext
-    extends ContainerBase
+public class StandardContext extends ContainerBase
     implements Context {
 
 
@@ -1284,8 +1283,7 @@ public class StandardContext
     public void addChild(Container child) {
 
         if (!(child instanceof Wrapper))
-            throw new IllegalArgumentException
-                (sm.getString("standardContext.notWrapper"));
+            throw new IllegalArgumentException(sm.getString("standardContext.notWrapper"));
         Wrapper wrapper = (Wrapper) child;
         String jspFile = wrapper.getJspFile();
         if ((jspFile != null) && !jspFile.startsWith("/")) {
@@ -1293,8 +1291,7 @@ public class StandardContext
                 log(sm.getString("standardContext.wrapper.warning", jspFile));
                 wrapper.setJspFile("/" + jspFile);
             } else {
-                throw new IllegalArgumentException
-                    (sm.getString("standardContext.wrapper.error", jspFile));
+                throw new IllegalArgumentException(sm.getString("standardContext.wrapper.error", jspFile));
             }
         }
 

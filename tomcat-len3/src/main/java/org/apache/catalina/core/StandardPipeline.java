@@ -95,35 +95,8 @@ import org.apache.catalina.util.StringManager;
  * @author Craig R. McClanahan
  */
 
-public class StandardPipeline
-    implements Pipeline, Contained, Lifecycle {
+public class StandardPipeline implements Pipeline, Contained, Lifecycle {
 
-
-    // ----------------------------------------------------------- Constructors
-
-
-    /**
-     * Construct a new StandardPipeline instance with no associated Container.
-     */
-    public StandardPipeline() {
-
-        this(null);
-
-    }
-
-
-    /**
-     * Construct a new StandardPipeline instance that is associated with the
-     * specified Container.
-     *
-     * @param container The container we should be associated with
-     */
-    public StandardPipeline(Container container) {
-
-        super();
-        setContainer(container);
-
-    }
 
 
     // ----------------------------------------------------- Instance Variables
@@ -137,6 +110,8 @@ public class StandardPipeline
 
     /**
      * The Container with which this Pipeline is associated.
+     *
+     *
      */
     protected Container container = null;
 
@@ -179,6 +154,28 @@ public class StandardPipeline
     protected Valve valves[] = new Valve[0];
 
 
+    // ----------------------------------------------------------- Constructors
+
+
+    /**
+     * Construct a new StandardPipeline instance with no associated Container.
+     */
+    public StandardPipeline() {
+        this(null);
+    }
+
+
+    /**
+     * Construct a new StandardPipeline instance that is associated with the
+     * specified Container.
+     *
+     * @param container The container we should be associated with
+     */
+    public StandardPipeline(Container container) {
+        super();
+        setContainer(container);
+    }
+
     // --------------------------------------------------------- Public Methods
 
 
@@ -186,9 +183,7 @@ public class StandardPipeline
      * Return descriptive information about this implementation class.
      */
     public String getInfo() {
-
         return (this.info);
-
     }
 
 
@@ -199,9 +194,7 @@ public class StandardPipeline
      * Return the Container with which this Pipeline is associated.
      */
     public Container getContainer() {
-
         return (this.container);
-
     }
 
 
@@ -211,9 +204,7 @@ public class StandardPipeline
      * @param container The new associated container
      */
     public void setContainer(Container container) {
-
         this.container = container;
-
     }
 
 
@@ -226,9 +217,7 @@ public class StandardPipeline
      * @param listener The listener to add
      */
     public void addLifecycleListener(LifecycleListener listener) {
-
         lifecycle.addLifecycleListener(listener);
-
     }
 
 
@@ -237,9 +226,7 @@ public class StandardPipeline
      * Lifecycle has no listeners registered, a zero-length array is returned.
      */
     public LifecycleListener[] findLifecycleListeners() {
-
         return lifecycle.findLifecycleListeners();
-
     }
 
 
@@ -249,9 +236,7 @@ public class StandardPipeline
      * @param listener The listener to remove
      */
     public void removeLifecycleListener(LifecycleListener listener) {
-
         lifecycle.removeLifecycleListener(listener);
-
     }
 
 
@@ -265,8 +250,7 @@ public class StandardPipeline
 
         // Validate and update our current component state
         if (started)
-            throw new LifecycleException
-                (sm.getString("standardPipeline.alreadyStarted"));
+            throw new LifecycleException(sm.getString("standardPipeline.alreadyStarted"));
 
         // Notify our interested LifecycleListeners
         lifecycle.fireLifecycleEvent(BEFORE_START_EVENT, null);
@@ -583,8 +567,7 @@ public class StandardPipeline
     // ------------------------------- StandardPipelineValveContext Inner Class
 
 
-    protected class StandardPipelineValveContext
-        implements ValveContext {
+    protected class StandardPipelineValveContext implements ValveContext {
 
 
         // ------------------------------------------------- Instance Variables

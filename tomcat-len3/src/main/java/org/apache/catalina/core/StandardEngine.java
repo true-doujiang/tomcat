@@ -83,8 +83,7 @@ import org.apache.catalina.util.ServerInfo;
  * @version $Revision: 1.15 $ $Date: 2002/05/02 22:14:45 $
  */
 
-public class StandardEngine
-    extends ContainerBase
+public class StandardEngine  extends ContainerBase
     implements Engine {
 
 

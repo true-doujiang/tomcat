@@ -158,8 +158,7 @@ import org.apache.catalina.util.StringManager;
  * @version $Revision: 1.21 $ $Date: 2002/06/09 02:19:42 $
  */
 
-public abstract class ContainerBase
-    implements Container, Lifecycle, Pipeline {
+public abstract class ContainerBase implements Container, Lifecycle, Pipeline {
 
 
     /**
@@ -168,8 +167,7 @@ public abstract class ContainerBase
      * this allows the XML parser to have fewer privileges than
      * Tomcat.
      */
-    protected class PrivilegedAddChild
-        implements PrivilegedAction {
+    protected class PrivilegedAddChild implements PrivilegedAction {
 
         private Container child;
 
