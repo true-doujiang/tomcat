@@ -227,6 +227,9 @@ public interface Wrapper extends Container {
      * @exception ServletException if the servlet init() method threw
      *  an exception
      * @exception ServletException if a loading error occurs
+     *
+     *
+     *
      */
     public Servlet allocate() throws ServletException;
 
@@ -284,6 +287,10 @@ public interface Wrapper extends Container {
      * @exception ServletException if the servlet init() method threw
      *  an exception
      * @exception ServletException if some other loading problem occurs
+     *
+     *
+     *
+     *
      */
     public void load() throws ServletException;
 

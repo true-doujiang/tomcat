@@ -87,8 +87,7 @@ import org.apache.catalina.util.StringManager;
  * @version $Revision: 1.4 $ $Date: 2002/01/25 20:12:27 $
  */
 
-public abstract class ValveBase
-    implements Contained, Valve {
+public abstract class ValveBase implements Contained, Valve {
 
 
     //------------------------------------------------------ Instance Variables

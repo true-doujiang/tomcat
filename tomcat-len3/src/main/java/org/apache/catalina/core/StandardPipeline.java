@@ -104,6 +104,8 @@ public class StandardPipeline implements Pipeline, Contained, Lifecycle {
 
     /**
      * The basic Valve (if any) associated with this Pipeline.
+     *
+     * 基础阀
      */
     protected Valve basic = null;
 
@@ -137,8 +139,7 @@ public class StandardPipeline implements Pipeline, Contained, Lifecycle {
     /**
      * The string manager for this package.
      */
-    protected static StringManager sm =
-        StringManager.getManager(Constants.Package);
+    protected static StringManager sm =  StringManager.getManager(Constants.Package);
 
 
     /**
@@ -148,8 +149,9 @@ public class StandardPipeline implements Pipeline, Contained, Lifecycle {
 
 
     /**
-     * The set of Valves (not including the Basic one, if any) associated with
-     * this Pipeline.
+     * The set of Valves (not including the Basic one, if any) associated with this Pipeline.
+     *
+     * 所有的阀都放在这里
      */
     protected Valve valves[] = new Valve[0];
 
@@ -192,6 +194,8 @@ public class StandardPipeline implements Pipeline, Contained, Lifecycle {
 
     /**
      * Return the Container with which this Pipeline is associated.
+     *
+     * Contained 接口实现方法
      */
     public Container getContainer() {
         return (this.container);
@@ -202,6 +206,8 @@ public class StandardPipeline implements Pipeline, Contained, Lifecycle {
      * Set the Container with which this Pipeline is associated.
      *
      * @param container The new associated container
+     *
+     *  Contained 接口实现方法
      */
     public void setContainer(Container container) {
         this.container = container;
@@ -455,12 +461,15 @@ public class StandardPipeline implements Pipeline, Contained, Lifecycle {
      *
      * @exception IOException if an input/output error occurs
      * @exception ServletException if a servlet exception is thrown
+     *
+     *
+     *
      */
     public void invoke(Request request, Response response)
         throws IOException, ServletException {
 
         // Invoke the first Valve in this pipeline for this request
-        (new StandardPipelineValveContext()).invokeNext(request, response);
+        new StandardPipelineValveContext().invokeNext(request, response);
 
     }
 
@@ -620,6 +629,7 @@ public class StandardPipeline implements Pipeline, Contained, Lifecycle {
 
             // Invoke the requested Valve for the current request thread
             if (subscript < valves.length) {
+                // this 是StandardPipelineValveContext实例
                 valves[subscript].invoke(request, response, this);
             } else if ((subscript == valves.length) && (basic != null)) {
                 basic.invoke(request, response, this);

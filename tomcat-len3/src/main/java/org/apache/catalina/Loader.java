@@ -97,8 +97,9 @@ import java.beans.PropertyChangeListener;
  *
  * @author Craig R. McClanahan
  * @version $Revision: 1.6 $ $Date: 2002/09/19 22:55:47 $
+ *
+ *  类载入器
  */
-
 public interface Loader {
 
 

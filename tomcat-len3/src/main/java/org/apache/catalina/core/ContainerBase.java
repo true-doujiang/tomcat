@@ -272,6 +272,8 @@ public abstract class ContainerBase implements Container, Lifecycle, Pipeline {
 
     /**
      * The Pipeline object with which this Container is associated.
+     *
+     * 四种Servlet容器 Wrapper Context Host Engine 都是使用StandardPipeline
      */
     protected Pipeline pipeline = new StandardPipeline(this);
 
@@ -291,8 +293,7 @@ public abstract class ContainerBase implements Container, Lifecycle, Pipeline {
     /**
      * The string manager for this package.
      */
-    protected static StringManager sm =
-        StringManager.getManager(Constants.Package);
+    protected static StringManager sm = StringManager.getManager(Constants.Package);
 
 
     /**
@@ -987,8 +988,7 @@ public abstract class ContainerBase implements Container, Lifecycle, Pipeline {
      * @exception ServletException if a ServletException was thrown
      *  while processing this request
      */
-    public void invoke(Request request, Response response)
-        throws IOException, ServletException {
+    public void invoke(Request request, Response response) throws IOException, ServletException {
         pipeline.invoke(request, response);
     }
 

@@ -679,9 +679,7 @@ public class StandardContext extends ContainerBase
 
         boolean oldCrossContext = this.crossContext;
         this.crossContext = crossContext;
-        support.firePropertyChange("crossContext",
-                                   new Boolean(oldCrossContext),
-                                   new Boolean(this.crossContext));
+        support.firePropertyChange("crossContext", new Boolean(oldCrossContext), new Boolean(this.crossContext));
 
     }
 
@@ -705,8 +703,7 @@ public class StandardContext extends ContainerBase
 
         String oldDisplayName = this.displayName;
         this.displayName = displayName;
-        support.firePropertyChange("displayName", oldDisplayName,
-                                   this.displayName);
+        support.firePropertyChange("displayName", oldDisplayName, this.displayName);
     }
 
 
@@ -3294,10 +3291,13 @@ public class StandardContext extends ContainerBase
         for (int i = 0; i < children.length; i++) {
             Wrapper wrapper = (Wrapper) children[i];
             int loadOnStartup = wrapper.getLoadOnStartup();
-            if (loadOnStartup < 0)
+            if (loadOnStartup < 0) {
                 continue;
-            if (loadOnStartup == 0)     // Arbitrarily put them last
+            }
+            // Arbitrarily put them last
+            if (loadOnStartup == 0) {
                 loadOnStartup = Integer.MAX_VALUE;
+            }
             Integer key = new Integer(loadOnStartup);
             ArrayList list = (ArrayList) map.get(key);
             if (list == null) {
@@ -3316,10 +3316,10 @@ public class StandardContext extends ContainerBase
             while (wrappers.hasNext()) {
                 Wrapper wrapper = (Wrapper) wrappers.next();
                 try {
+                    //
                     wrapper.load();
                 } catch (ServletException e) {
-                    log(sm.getString("standardWrapper.loadException",
-                                     getName()), e);
+                    log(sm.getString("standardWrapper.loadException", getName()), e);
                     // NOTE: load errors (including a servlet that throws
                     // UnavailableException from tht init() method) are NOT
                     // fatal to application startup
@@ -3337,8 +3337,7 @@ public class StandardContext extends ContainerBase
      */
     public synchronized void start() throws LifecycleException {
         if (started)
-            throw new LifecycleException
-                (sm.getString("containerBase.alreadyStarted", logName()));
+            throw new LifecycleException(sm.getString("containerBase.alreadyStarted", logName()));
 
         if (debug >= 1)
             log("Starting");
@@ -3367,10 +3366,8 @@ public class StandardContext extends ContainerBase
             }
         }
         if (ok && (resources instanceof ProxyDirContext)) {
-            DirContext dirContext =
-                ((ProxyDirContext) resources).getDirContext();
-            if ((dirContext != null)
-                && (dirContext instanceof BaseDirContext)) {
+            DirContext dirContext = ((ProxyDirContext) resources).getDirContext();
+            if ((dirContext != null) && (dirContext instanceof BaseDirContext)) {
                 ((BaseDirContext) dirContext).setDocBase(getBasePath());
                 ((BaseDirContext) dirContext).allocate();
             }
@@ -3457,8 +3454,9 @@ public class StandardContext extends ContainerBase
                 // Start our child containers, if any
                 Container children[] = findChildren();
                 for (int i = 0; i < children.length; i++) {
-                    if (children[i] instanceof Lifecycle)
+                    if (children[i] instanceof Lifecycle) {
                         ((Lifecycle) children[i]).start();
+                    }
                 }
 
                 // Start the Valves in our pipeline (including the basic),

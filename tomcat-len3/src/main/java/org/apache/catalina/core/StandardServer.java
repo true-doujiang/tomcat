@@ -134,8 +134,7 @@ import org.apache.catalina.util.StringManager;
  * @version $Revision: 1.32 $ $Date: 2002/09/11 14:19:33 $
  */
 
-public final class StandardServer
-    implements Lifecycle, Server {
+public final class StandardServer implements Lifecycle, Server {
 
 
     // -------------------------------------------------------------- Constants

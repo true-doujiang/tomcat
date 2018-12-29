@@ -72,8 +72,11 @@ package org.apache.catalina;
  * @author Craig R. McClanahan
  * @author Peter Donald
  * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
+ *
+ *
+ *
+ * 该接口的 实现类（StandardPipeline ....） 可以通过接口方法与至多一个Server容器相关联
  */
-
 public interface Contained {
 
 

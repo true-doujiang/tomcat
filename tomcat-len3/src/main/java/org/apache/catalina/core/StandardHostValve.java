@@ -90,8 +90,7 @@ import org.apache.catalina.valves.ValveBase;
  * @version $Revision: 1.6 $ $Date: 2002/01/04 16:33:40 $
  */
 
-final class StandardHostValve
-    extends ValveBase {
+final class StandardHostValve extends ValveBase {
 
 
     // ----------------------------------------------------- Instance Variables
@@ -100,8 +99,7 @@ final class StandardHostValve
     /**
      * The descriptive information related to this implementation.
      */
-    private static final String info =
-        "org.apache.catalina.core.StandardHostValve/1.0";
+    private static final String info = "org.apache.catalina.core.StandardHostValve/1.0";
 
 
     /**
@@ -139,8 +137,7 @@ final class StandardHostValve
      * @exception IOException if an input/output error occurred
      * @exception ServletException if a servlet error occurred
      */
-    public void invoke(Request request, Response response,
-                       ValveContext valveContext)
+    public void invoke(Request request, Response response, ValveContext valveContext)
         throws IOException, ServletException {
 
         // Validate the request and response object types
@@ -153,9 +150,7 @@ final class StandardHostValve
         StandardHost host = (StandardHost) getContainer();
         Context context = (Context) host.map(request, true);
         if (context == null) {
-            ((HttpServletResponse) response.getResponse()).sendError
-                (HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                 sm.getString("standardHost.noContext"));
+            ((HttpServletResponse) response.getResponse()).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, sm.getString("standardHost.noContext"));
             return;
         }
 
