@@ -16,16 +16,33 @@ import org.apache.catalina.Contained;
 import org.apache.catalina.Container;
 
 /**
+ * @author youhh
  * 基础阀
  */
 public class SimpleWrapperValve implements Valve, Contained {
 
     protected Container container;
 
+
+    public Container getContainer() {
+        return container;
+    }
+
+    public void setContainer(Container container) {
+        this.container = container;
+    }
+
+    /**
+     * 1.基础阀的invoke方法 不需要调用传递给它的ValveContext实例的invokeNext方法
+     * 2.
+     */
     public void invoke(Request request, Response response, ValveContext valveContext)
             throws IOException, ServletException {
+        //基础阀的invoke方法 不需要调用传递给它的ValveContext实例的invokeNext方法
 
+        //
         SimpleWrapper wrapper = (SimpleWrapper) getContainer();
+
         ServletRequest sreq = request.getRequest();
         ServletResponse sres = response.getResponse();
 
@@ -57,11 +74,4 @@ public class SimpleWrapperValve implements Valve, Contained {
         return null;
     }
 
-    public Container getContainer() {
-        return container;
-    }
-
-    public void setContainer(Container container) {
-        this.container = container;
-    }
 }

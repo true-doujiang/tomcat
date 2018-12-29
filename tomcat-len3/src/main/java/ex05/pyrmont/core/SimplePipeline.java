@@ -22,6 +22,7 @@ public class SimplePipeline implements Pipeline {
     protected Valve basic = null;
     /**
      *  The Container with which this Pipeline is associated.
+     *  container字段 是在SimplePipeline构造器中初始化
       */
     protected Container container = null;
     /**

@@ -29,11 +29,15 @@ public class SimpleWrapper implements Wrapper, Pipeline {
      * the servlet instance
       */
     private Servlet instance = null;
-    //
+
     private String servletClass;
-    // 该容器使用的类加载器
+    /**
+     *  该容器使用的类加载器
+     */
     private Loader loader;
-    // 该容器的父容器
+    /**
+     * 该容器的父容器
+     */
     protected Container parent = null;
 
     private String name;
@@ -54,6 +58,33 @@ public class SimpleWrapper implements Wrapper, Pipeline {
 
     public synchronized void addValve(Valve valve) {
         pipeline.addValve(valve);
+    }
+
+
+    public void invoke(Request request, Response response) throws IOException, ServletException {
+        pipeline.invoke(request, response);
+    }
+
+
+    /**
+     *  method implementations of Pipeline
+     *
+     * @return
+     */
+    public Valve getBasic() {
+        return pipeline.getBasic();
+    }
+
+    public void setBasic(Valve valve) {
+        pipeline.setBasic(valve);
+    }
+
+    public Valve[] getValves() {
+        return pipeline.getValves();
+    }
+
+    public void removeValve(Valve valve) {
+        pipeline.removeValve(valve);
     }
 
     /**
@@ -85,8 +116,9 @@ public class SimpleWrapper implements Wrapper, Pipeline {
     }
 
     private Servlet loadServlet() throws ServletException {
-        if (instance != null)
+        if (instance != null) {
             return instance;
+        }
 
         Servlet servlet = null;
         String actualClass = servletClass;
@@ -119,6 +151,7 @@ public class SimpleWrapper implements Wrapper, Pipeline {
 
         // Call the initialization method of this servlet
         try {
+
             servlet.init(null);
         } catch (Throwable f) {
             throw new ServletException("Failed initialize servlet.");
@@ -302,11 +335,6 @@ public class SimpleWrapper implements Wrapper, Pipeline {
         return null;
     }
 
-    public void invoke(Request request, Response response)
-            throws IOException, ServletException {
-        pipeline.invoke(request, response);
-    }
-
     public boolean isUnavailable() {
         return false;
     }
@@ -341,23 +369,6 @@ public class SimpleWrapper implements Wrapper, Pipeline {
     }
 
     public void unload() throws ServletException {
-    }
-
-    // method implementations of Pipeline
-    public Valve getBasic() {
-        return pipeline.getBasic();
-    }
-
-    public void setBasic(Valve valve) {
-        pipeline.setBasic(valve);
-    }
-
-    public Valve[] getValves() {
-        return pipeline.getValves();
-    }
-
-    public void removeValve(Valve valve) {
-        pipeline.removeValve(valve);
     }
 
 }
