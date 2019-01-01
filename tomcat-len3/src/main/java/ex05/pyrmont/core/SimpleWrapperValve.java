@@ -17,10 +17,14 @@ import org.apache.catalina.Container;
 
 /**
  * @author youhh
- * 基础阀
+ *
+ * @desc SimpleWrapper类的基础阀
  */
 public class SimpleWrapperValve implements Valve, Contained {
 
+    /**
+     * 该基础阀的宿主类
+     */
     protected Container container;
 
 
@@ -28,13 +32,18 @@ public class SimpleWrapperValve implements Valve, Contained {
         return container;
     }
 
+    /**
+     *　SimpleWrapper()构造器中开始设置的
+     *
+     *  debug查看调用执行栈就知道了
+     */
     public void setContainer(Container container) {
         this.container = container;
     }
 
     /**
      * 1.基础阀的invoke方法 不需要调用传递给它的ValveContext实例的invokeNext方法
-     * 2.
+     * 2.invoke方法 会调用SimpleWrapper类allocate()来获取Wrapper实例表示的Servlet的实例
      */
     public void invoke(Request request, Response response, ValveContext valveContext)
             throws IOException, ServletException {
@@ -44,7 +53,7 @@ public class SimpleWrapperValve implements Valve, Contained {
         SimpleWrapper wrapper = (SimpleWrapper) getContainer();
 
         ServletRequest sreq = request.getRequest();
-        ServletResponse sres = response.getResponse();
+        ServletResponse sresp = response.getResponse();
 
         Servlet servlet = null;
         HttpServletRequest hreq = null;
@@ -52,21 +61,25 @@ public class SimpleWrapperValve implements Valve, Contained {
             hreq = (HttpServletRequest) sreq;
         }
         HttpServletResponse hres = null;
-        if (sres instanceof HttpServletResponse) {
-            hres = (HttpServletResponse) sres;
+        if (sresp instanceof HttpServletResponse) {
+            hres = (HttpServletResponse) sresp;
         }
 
         // Allocate a servlet instance to process this request
         try {
 
+            // invoke方法 会调用SimpleWrapper类allocate()来获取Wrapper实例表示的Servlet的实例
             servlet = wrapper.allocate();
 
+            // 注意是Wrapper实例的基础阀调用了Servlet实例的sevice(),而不是Wrapper实例本身调用的
             if (hres != null && hreq != null) {
                 servlet.service(hreq, hres);
             } else {
-                servlet.service(sreq, sres);
+                servlet.service(sreq, sresp);
             }
+
         } catch (ServletException e) {
+            e.printStackTrace();
         }
     }
 

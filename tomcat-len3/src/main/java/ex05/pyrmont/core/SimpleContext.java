@@ -36,21 +36,211 @@ import org.apache.catalina.deploy.NamingResources;
 import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.catalina.util.CharsetMapper;
 
+
+/**
+ * @author youhh
+ *
+ * @desc Context容器
+ *
+ * 实现了与映射器相关的方法
+ */
 public class SimpleContext implements Context, Pipeline {
 
+
+    /**
+     * 存放子容器
+     */
+    protected HashMap children = new HashMap();
+
+    protected SimplePipeline pipeline = new SimplePipeline(this);
+
+    /**
+     *
+     */
+    protected HashMap servletMappings = new HashMap();
+
+    /**
+     * 默认映射器 第一个添加的成为默认映射器
+     */
+    protected Mapper mapper = null;
+
+    /**
+     * 所有映射器  映射HTTP HTTPS
+     */
+    protected HashMap mappers = new HashMap();
+
+    /**
+     * 类加载器
+     */
+    protected Loader loader = null;
+
+    private Container parent = null;
+
+
+    /**
+     *
+     */
     public SimpleContext() {
         pipeline.setBasic(new SimpleContextValve());
     }
 
-    protected HashMap children = new HashMap();
-    protected Loader loader = null;
-    protected SimplePipeline pipeline = new SimplePipeline(this);
-    protected HashMap servletMappings = new HashMap();
-    protected Mapper mapper = null;
-    protected HashMap mappers = new HashMap();
-    private Container parent = null;
+
+    public Container findChild(String name) {
+        if (name == null) {
+            return (null);
+        }
+        synchronized (children) {       // Required by post-start changes
+            return (Container) children.get(name);
+        }
+    }
+
+    public Container[] findChildren() {
+        synchronized (children) {
+            Container results[] = new Container[children.size()];
+            return (Container[]) children.values().toArray(results);
+        }
+    }
+
+    /**
+     * HttpProcessor.process()调用
+     */
+    public void invoke(Request request, Response response) throws IOException, ServletException {
+        pipeline.invoke(request, response);
+    }
+
+
+    // method implementations of Pipeline
+    public Valve getBasic() {
+        return pipeline.getBasic();
+    }
+
+    public void setBasic(Valve valve) {
+        pipeline.setBasic(valve);
+    }
+
+    public synchronized void addValve(Valve valve) {
+        pipeline.addValve(valve);
+    }
+
+    public Valve[] getValves() {
+        return pipeline.getValves();
+    }
+
+    public void removeValve(Valve valve) {
+        pipeline.removeValve(valve);
+    }
+
+    /**
+     *
+     * 以下实现了与映射器相关的方法
+     *
+     */
+    public void addServletMapping(String pattern, String name) {
+        synchronized (servletMappings) {
+            servletMappings.put(pattern, name);
+        }
+    }
+
+    public String findServletMapping(String pattern) {
+        synchronized (servletMappings) {
+            return (String) servletMappings.get(pattern);
+        }
+    }
+
+    /**
+     *  返回要处理某个特定请求的子容器实例
+     */
+    public Container map(Request request, boolean update) {
+        //this method is taken from the map method in org.apache.cataline.core.ContainerBase
+        //the findMapper method always returns the default mapper, if any, regardless the request's protocol
+
+        Mapper mapper = findMapper(request.getRequest().getProtocol());
+
+        if (mapper == null) {
+            return (null);
+        }
+
+        // Use this Mapper to perform this mapping
+        return mapper.map(request, update);
+    }
+
+    /**
+     *  this method is adopted from addMapper in ContainerBase
+     *  the first mapper added becomes the default mapper
+     *
+     *  第一个添加的映射器会成为默认映射器
+     */
+    public void addMapper(Mapper mapper) {
+        mapper.setContainer(this);      // May throw IAE
+        this.mapper = mapper;
+
+        synchronized (mappers) {
+
+            if (mappers.get(mapper.getProtocol()) != null) {
+                throw new IllegalArgumentException("addMapper:  Protocol '" + mapper.getProtocol() + "' is not unique");
+            }
+
+            mapper.setContainer(this);      // May throw IAE
+
+            mappers.put(mapper.getProtocol(), mapper);
+
+            if (mappers.size() == 1) {
+                this.mapper = mapper;
+            } else {
+                this.mapper = null;
+            }
+        }
+    }
+
+
+    public Mapper findMapper(String protocol) {
+        // the default mapper will always be returned, if any, regardless the value of protocol
+        if (mapper != null) {
+            return mapper;
+        } else {
+            synchronized (mappers) {
+                return (Mapper) mappers.get(protocol);
+            }
+        }
+    }
+
+    public Mapper[] findMappers() {
+        return null;
+    }
+
+    public Loader getLoader() {
+        if (loader != null) {
+            return (loader);
+        }
+        if (parent != null) {
+            return (parent.getLoader());
+        }
+        return null;
+    }
+
+    public void setLoader(Loader loader) {
+        this.loader = loader;
+    }
+
+    /**
+     * 添加子容器
+     */
+    public void addChild(Container child) {
+        //把当前容器设置为子容器的父容器
+        child.setParent(this);
+        children.put(child.getName(), child);
+    }
+
+
 
     public Object[] getApplicationListeners() {
+        return null;
+    }
+
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+    }
+
+    public ContainerListener[] findContainerListeners() {
         return null;
     }
 
@@ -231,12 +421,6 @@ public class SimpleContext implements Context, Pipeline {
     public void addSecurityRole(String role) {
     }
 
-    public void addServletMapping(String pattern, String name) {
-        synchronized (servletMappings) {
-            servletMappings.put(pattern, name);
-        }
-    }
-
     public void addTaglib(String uri, String location) {
     }
 
@@ -369,12 +553,6 @@ public class SimpleContext implements Context, Pipeline {
         return null;
     }
 
-    public String findServletMapping(String pattern) {
-        synchronized (servletMappings) {
-            return ((String) servletMappings.get(pattern));
-        }
-    }
-
     public String[] findServletMappings() {
         return null;
     }
@@ -486,20 +664,6 @@ public class SimpleContext implements Context, Pipeline {
         return null;
     }
 
-    public Loader getLoader() {
-        if (loader != null) {
-            return (loader);
-        }
-        if (parent != null) {
-            return (parent.getLoader());
-        }
-        return (null);
-    }
-
-    public void setLoader(Loader loader) {
-        this.loader = loader;
-    }
-
     public Logger getLogger() {
         return null;
     }
@@ -556,86 +720,8 @@ public class SimpleContext implements Context, Pipeline {
     public void setResources(DirContext resources) {
     }
 
-    public void addChild(Container child) {
-        child.setParent((Container) this);
-        children.put(child.getName(), child);
-    }
 
     public void addContainerListener(ContainerListener listener) {
-    }
-
-    public void addMapper(Mapper mapper) {
-        // this method is adopted from addMapper in ContainerBase
-        // the first mapper added becomes the default mapper
-        mapper.setContainer((Container) this);      // May throw IAE
-        this.mapper = mapper;
-        synchronized (mappers) {
-            if (mappers.get(mapper.getProtocol()) != null) {
-                throw new IllegalArgumentException("addMapper:  Protocol '" + mapper.getProtocol() + "' is not unique");
-            }
-            mapper.setContainer((Container) this);      // May throw IAE
-            mappers.put(mapper.getProtocol(), mapper);
-            if (mappers.size() == 1) {
-                this.mapper = mapper;
-            } else {
-                this.mapper = null;
-            }
-        }
-    }
-
-    public void addPropertyChangeListener(PropertyChangeListener listener) {
-    }
-
-    public Container findChild(String name) {
-        if (name == null) {
-            return (null);
-        }
-        synchronized (children) {       // Required by post-start changes
-            return ((Container) children.get(name));
-        }
-    }
-
-    public Container[] findChildren() {
-        synchronized (children) {
-            Container results[] = new Container[children.size()];
-            return ((Container[]) children.values().toArray(results));
-        }
-    }
-
-    public ContainerListener[] findContainerListeners() {
-        return null;
-    }
-
-    public Mapper findMapper(String protocol) {
-        // the default mapper will always be returned, if any,
-        // regardless the value of protocol
-        if (mapper != null)
-            return (mapper);
-        else
-            synchronized (mappers) {
-                return ((Mapper) mappers.get(protocol));
-            }
-    }
-
-    public Mapper[] findMappers() {
-        return null;
-    }
-
-    public void invoke(Request request, Response response) throws IOException, ServletException {
-        pipeline.invoke(request, response);
-    }
-
-    public Container map(Request request, boolean update) {
-        //this method is taken from the map method in org.apache.cataline.core.ContainerBase
-        //the findMapper method always returns the default mapper, if any, regardless the
-        //request's protocol
-        Mapper mapper = findMapper(request.getRequest().getProtocol());
-        if (mapper == null) {
-            return (null);
-        }
-
-        // Use this Mapper to perform this mapping
-        return (mapper.map(request, update));
     }
 
     public void removeChild(Container child) {
@@ -650,25 +736,5 @@ public class SimpleContext implements Context, Pipeline {
     public void removePropertyChangeListener(PropertyChangeListener listener) {
     }
 
-    // method implementations of Pipeline
-    public Valve getBasic() {
-        return pipeline.getBasic();
-    }
-
-    public void setBasic(Valve valve) {
-        pipeline.setBasic(valve);
-    }
-
-    public synchronized void addValve(Valve valve) {
-        pipeline.addValve(valve);
-    }
-
-    public Valve[] getValves() {
-        return pipeline.getValves();
-    }
-
-    public void removeValve(Valve valve) {
-        pipeline.removeValve(valve);
-    }
 
 }

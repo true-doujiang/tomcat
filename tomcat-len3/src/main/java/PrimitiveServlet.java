@@ -6,7 +6,7 @@ import java.util.Enumeration;
 public class PrimitiveServlet implements Servlet {
 
     public void init(ServletConfig config) throws ServletException {
-        System.out.println("init");
+        System.out.println("PrimitiveServlet -- init config=" + config);
     }
 
     /**
@@ -20,7 +20,7 @@ public class PrimitiveServlet implements Servlet {
             throws ServletException, IOException {
 
 
-        System.out.println(Thread.currentThread().getName() + " from service ------start111------ ");
+        System.out.println(Thread.currentThread().getName() + " PrimitiveServlet from service ------start111------ ");
         System.out.println(Thread.currentThread().getName() + " this=" + this + " request=" + request + " response=" + response);
 
         PrintWriter out = response.getWriter();
@@ -50,7 +50,7 @@ public class PrimitiveServlet implements Servlet {
 
 
 
-        System.out.println(Thread.currentThread().getName() + " from service --------end111------ ");
+        System.out.println(Thread.currentThread().getName() + " PrimitiveServlet to service --------end111------ ");
     }
 
     public void destroy() {

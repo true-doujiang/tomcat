@@ -787,23 +787,15 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
 
         synchronized (processors) {
             if (processors.size() > 0) {
-                // if (debug >= 2)
-                // log("createProcessor: Reusing existing processor");
                 return ((HttpProcessor) processors.pop());
             }
             if ((maxProcessors > 0) && (curProcessors < maxProcessors)) {
-                // if (debug >= 2)
-                // log("createProcessor: Creating new processor");
                 System.out.println(Thread.currentThread().getName() + " HttpProcessor 不够用 需要创建1个新的 ");
-            	return (newProcessor());
+            	return newProcessor();
             } else {
                 if (maxProcessors < 0) {
-                    // if (debug >= 2)
-                    // log("createProcessor: Creating new processor");
-                    return (newProcessor());
+                    return newProcessor();
                 } else {
-                    // if (debug >= 2)
-                    // log("createProcessor: Cannot create new processor");
                     return (null);
                 }
             }
@@ -909,7 +901,8 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
                 continue;
             }
 
-            //processors : Stack中有就取   没有就新穿件一个      超过最大数返回null
+            //HttpConnector线程执行
+            // processors : Stack中有就取 没有就新穿件一个      超过最大数返回null
             // Hand this socket off to an appropriate processor
             HttpProcessor processor = createProcessor();
             //System.out.println(Thread.currentThread().getName() + " 获取处理器  processor = " + processor);
@@ -927,11 +920,11 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
             }
             //            if (debug >= 3)
             //                log("run: Assigning socket to processor " + processor);
-            //
+
+            // 传递Socket给处理器线程
             processor.assign(socket);
 
             // The processor will recycle itself when it finishes
-
         }
 
         // Notify the threadStop() method that we have shut ourselves down
@@ -1073,6 +1066,8 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
 
     /**
      * Initialize this connector (create ServerSocket here!)
+     *
+     * 使用工厂设计模式创建一个ServerSocket
      */
     public void initialize() throws LifecycleException {
         if (initialized) {
@@ -1130,7 +1125,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
         // Start our background thread
         threadStart();
         
-        // 初始化一定数量 HttpProcessor 并存入池子中
+        // main线程 初始化一定数量 HttpProcessor 并存入池子中
         // Create the specified minimum number of processors
         while (curProcessors < minProcessors) {
             if ((maxProcessors > 0) && (curProcessors >= maxProcessors)) {

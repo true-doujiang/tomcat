@@ -11,6 +11,9 @@ import org.apache.catalina.Container;
 import org.apache.catalina.Loader;
 import org.apache.catalina.DefaultContext;
 
+/**
+ *
+ */
 public class SimpleLoader implements Loader {
 
     public static final String WEB_ROOT = System.getProperty("user.dir") + File.separator + "webroot";
@@ -18,6 +21,7 @@ public class SimpleLoader implements Loader {
     ClassLoader classLoader = null;
 
     Container container = null;
+
 
     public SimpleLoader() {
         try {
@@ -28,10 +32,9 @@ public class SimpleLoader implements Loader {
             urls[0] = new URL(null, repository, streamHandler);
             classLoader = new URLClassLoader(urls);
         } catch (IOException e) {
-            System.out.println(e.toString());
+            //System.out.println(e.toString());
+            e.printStackTrace();
         }
-
-
     }
 
     public ClassLoader getClassLoader() {

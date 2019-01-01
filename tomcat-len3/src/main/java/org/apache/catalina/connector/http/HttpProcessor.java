@@ -65,6 +65,9 @@ final class HttpProcessor implements Lifecycle, Runnable {
      *
      * 处理器线程刚启动时available=false, 所以处于等待状态
      * 直到连接器线程调用HttpProcessor实例的notify()
+     *
+     * 测试volatile很好的场景:
+     * HttpConnector[8080] 传递Socket给处理器线程 available = false time: 1546340862206  总是在处理器线程后面执行
      */
     private boolean available = false;
 
@@ -98,8 +101,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
     /**
      * The match string for identifying a session ID parameter.
      */
-    private static final String match =
-        ";" + Globals.SESSION_PARAMETER_NAME + "=";
+    private static final String match = ";" + Globals.SESSION_PARAMETER_NAME + "=";
 
 
     /**
@@ -251,6 +253,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
      *
      * @param connector HttpConnector that owns this processor
      * @param id Identifier of this HttpProcessor (unique per connector)
+     *
      */
     public HttpProcessor(HttpConnector connector, int id) {
         super();
@@ -676,7 +679,6 @@ final class HttpProcessor implements Lifecycle, Runnable {
             }
 
             request.nextHeader();
-
         }
 
     }
@@ -861,13 +863,14 @@ final class HttpProcessor implements Lifecycle, Runnable {
                     parseConnection(socket);
                     // 2. 解析请求 uri queryString   这里可以让Socket保持长连接???
                     parseRequest(input, output);
-
                     System.out.println(Thread.currentThread().getName() + " 请求uri= " + request.getRequestURI() + " 请求参数= " + request.getQueryString());
 
                     // 不是HTTP/0.9
                     if (!request.getRequest().getProtocol().startsWith("HTTP/0")) {
                         // 3. 解析请求头
+                        System.out.println("\n ----" + Thread.currentThread().getName() + " 解析请求头开始----");
                         parseHeaders(input);
+                        System.out.println(" ----" + Thread.currentThread().getName() + " 解析请求头结束----\n");
                     }
 
                     // HTTP 1.1
@@ -917,8 +920,14 @@ final class HttpProcessor implements Lifecycle, Runnable {
             try {
                 response.setHeader("Date", FastHttpDateFormat.getCurrentDate());
                 if (ok) {
+
                     System.out.println(Thread.currentThread().getName() + " 开始执行Servlet ");
-                	//Servlet容器 执行 servlet
+
+                    /**
+                     * Servlet容器 执行 servlet
+                     *
+                     * connector.getContainer()  Bootstrap启动类中设置的
+                     */
                     connector.getContainer().invoke(request, response);
                 }
             } catch (ServletException e) {
@@ -1016,7 +1025,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
             // Wait for the next socket to be assigned
             // 没有socket时在这里等待    assign() 方法线程通讯
             Socket socket = await();
-            System.out.println(Thread.currentThread().getName() + "  HttpProcessor 被唤醒 处理 Socket = " + socket);
+            System.out.println(Thread.currentThread().getName() + "  HttpProcessor 被唤醒 处理 Socket = " + socket + " time: " + System.currentTimeMillis());
             
             if (socket == null) {
                 continue;
@@ -1094,7 +1103,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
      */
     synchronized void assign(Socket socket) {
 
-    	System.err.println(Thread.currentThread().getName() + " 传递Socket给连接器 available = " + available);
+    	System.err.println(Thread.currentThread().getName() + " 传递Socket给处理器线程 available = " + available + " time: " + System.currentTimeMillis());
         // Wait for the Processor to get the previous Socket
         while (available) {
             try {
@@ -1112,7 +1121,6 @@ final class HttpProcessor implements Lifecycle, Runnable {
         if ((debug >= 1) && (socket != null)) {
             log(" An incoming request is being assigned");
         }
-
     }
 
     

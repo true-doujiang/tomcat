@@ -23,6 +23,11 @@ import org.apache.catalina.Valve;
 import org.apache.catalina.Wrapper;
 
 
+/**
+ * @author youhh
+ *
+ * @desc Wrapper容器
+ */
 public class SimpleWrapper implements Wrapper, Pipeline {
 
     /**
@@ -30,6 +35,9 @@ public class SimpleWrapper implements Wrapper, Pipeline {
       */
     private Servlet instance = null;
 
+    /**
+     * 该容器要载入的Servlet类名字,创建该容器时指定的
+     */
     private String servletClass;
     /**
      *  该容器使用的类加载器
@@ -40,10 +48,13 @@ public class SimpleWrapper implements Wrapper, Pipeline {
      */
     protected Container parent = null;
 
+    /**
+     * 容器的名字Bootstrap启动类中设置
+     */
     private String name;
 
     /**
-     * 初始化一个pipeline并绑定 this (ContainerServlet容器)
+     * 初始化一个pipeline并绑定 this (Container Servlet容器)
      */
     private SimplePipeline pipeline = new SimplePipeline(this);
 
@@ -53,30 +64,35 @@ public class SimpleWrapper implements Wrapper, Pipeline {
      *  构造默认添加一个基础阀
      */
     public SimpleWrapper() {
+        //setBasic() 中又把SimpleWrapper传递给了SimpleWrapperValve
         pipeline.setBasic(new SimpleWrapperValve());
-    }
-
-    public synchronized void addValve(Valve valve) {
-        pipeline.addValve(valve);
-    }
-
-
-    public void invoke(Request request, Response response) throws IOException, ServletException {
-        pipeline.invoke(request, response);
     }
 
 
     /**
-     *  method implementations of Pipeline
-     *
-     * @return
+     * HttpProcessor.process()调用
      */
-    public Valve getBasic() {
-        return pipeline.getBasic();
+    public void invoke(Request request, Response response) throws IOException, ServletException {
+        pipeline.invoke(request, response);
     }
+
+    /**
+     * 添加一个普通阀
+     */
+    public synchronized void addValve(Valve valve) {
+        pipeline.addValve(valve);
+    }
+
+    /**
+     *  method implementations of Pipeline
+     */
 
     public void setBasic(Valve valve) {
         pipeline.setBasic(valve);
+    }
+
+    public Valve getBasic() {
+        return pipeline.getBasic();
     }
 
     public Valve[] getValves() {
@@ -95,11 +111,8 @@ public class SimpleWrapper implements Wrapper, Pipeline {
         instance = loadServlet();
     }
 
-
     /**
      *
-     * @return
-     * @throws ServletException
      */
     public Servlet allocate() throws ServletException {
         // Load and initialize our instance if necessary
@@ -115,6 +128,9 @@ public class SimpleWrapper implements Wrapper, Pipeline {
         return instance;
     }
 
+    /**
+     *
+     */
     private Servlet loadServlet() throws ServletException {
         if (instance != null) {
             return instance;
@@ -126,6 +142,7 @@ public class SimpleWrapper implements Wrapper, Pipeline {
             throw new ServletException("servlet class has not been specified");
         }
 
+        //
         Loader loader = getLoader();
         // Acquire an instance of the class loader to be used
         if (loader == null) {
@@ -151,7 +168,7 @@ public class SimpleWrapper implements Wrapper, Pipeline {
 
         // Call the initialization method of this servlet
         try {
-
+            // 调用Servlet容器的init() 并传入初始化参数
             servlet.init(null);
         } catch (Throwable f) {
             throw new ServletException("Failed initialize servlet.");
@@ -159,14 +176,18 @@ public class SimpleWrapper implements Wrapper, Pipeline {
         return servlet;
     }
 
+    /**
+     * 当前容器有loader就用当前容器的
+     * 没有就用父类的loader
+     */
     public Loader getLoader() {
         if (loader != null) {
-            return (loader);
+            return loader;
         }
         if (parent != null) {
-            return (parent.getLoader());
+            return parent.getLoader();
         }
-        return (null);
+        return null;
     }
 
     /**
