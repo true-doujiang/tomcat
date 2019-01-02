@@ -1,6 +1,6 @@
 *.log
 *.swp
-
+## IDEA ##
 .idea
 .xml
 .iml
