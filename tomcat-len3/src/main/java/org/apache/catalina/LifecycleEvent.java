@@ -78,8 +78,7 @@ import java.util.EventObject;
  * @version $Revision: 1.3 $ $Date: 2001/07/22 20:13:30 $
  */
 
-public final class LifecycleEvent
-    extends EventObject {
+public final class LifecycleEvent extends EventObject {
 
 
     // ----------------------------------------------------------- Constructors
