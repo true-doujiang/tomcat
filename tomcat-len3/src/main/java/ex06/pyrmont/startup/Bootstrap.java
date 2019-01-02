@@ -38,7 +38,8 @@ public final class Bootstrap {
 
         Mapper mapper = new SimpleContextMapper();
         mapper.setProtocol("http");
-        
+
+        // 设置监听器
         LifecycleListener listener = new SimpleContextLifecycleListener();
         ((Lifecycle) context).addLifecycleListener(listener);
         
