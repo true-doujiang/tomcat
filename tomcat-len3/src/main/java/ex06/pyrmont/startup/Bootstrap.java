@@ -14,6 +14,10 @@ import org.apache.catalina.Mapper;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.connector.http.HttpConnector;
 
+/**
+ * @author youhh
+ * @desc 启动类
+ */
 public final class Bootstrap {
     
     
