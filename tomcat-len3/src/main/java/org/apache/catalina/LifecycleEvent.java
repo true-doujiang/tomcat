@@ -81,41 +81,7 @@ import java.util.EventObject;
 public final class LifecycleEvent extends EventObject {
 
 
-    // ----------------------------------------------------------- Constructors
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type) {
-
-        this(lifecycle, type, null);
-
-    }
-
-
-    /**
-     * Construct a new LifecycleEvent with the specified parameters.
-     *
-     * @param lifecycle Component on which this event occurred
-     * @param type Event type (required)
-     * @param data Event data (if any)
-     */
-    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
-
-        super(lifecycle);
-        this.lifecycle = lifecycle;
-        this.type = type;
-        this.data = data;
-
-    }
-
-
     // ----------------------------------------------------- Instance Variables
-
 
     /**
      * The event data associated with this event.
@@ -135,6 +101,35 @@ public final class LifecycleEvent extends EventObject {
     private String type = null;
 
 
+    // ----------------------------------------------------------- Constructors
+
+
+    /**
+     * Construct a new LifecycleEvent with the specified parameters.
+     *
+     * @param lifecycle Component on which this event occurred
+     * @param type Event type (required)
+     */
+    public LifecycleEvent(Lifecycle lifecycle, String type) {
+        this(lifecycle, type, null);
+    }
+
+
+    /**
+     * Construct a new LifecycleEvent with the specified parameters.
+     *
+     * @param lifecycle Component on which this event occurred
+     * @param type Event type (required)
+     * @param data Event data (if any)
+     */
+    public LifecycleEvent(Lifecycle lifecycle, String type, Object data) {
+        super(lifecycle);
+        this.lifecycle = lifecycle;
+        this.type = type;
+        this.data = data;
+    }
+
+
     // ------------------------------------------------------------- Properties
 
 
@@ -142,9 +137,7 @@ public final class LifecycleEvent extends EventObject {
      * Return the event data of this event.
      */
     public Object getData() {
-
-        return (this.data);
-
+        return this.data;
     }
 
 
@@ -152,9 +145,7 @@ public final class LifecycleEvent extends EventObject {
      * Return the Lifecycle on which this event occurred.
      */
     public Lifecycle getLifecycle() {
-
-        return (this.lifecycle);
-
+        return this.lifecycle;
     }
 
 
@@ -162,9 +153,7 @@ public final class LifecycleEvent extends EventObject {
      * Return the event type of this event.
      */
     public String getType() {
-
-        return (this.type);
-
+        return this.type;
     }
 
 

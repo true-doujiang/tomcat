@@ -12,7 +12,7 @@ import org.apache.catalina.Loader;
 import org.apache.catalina.DefaultContext;
 
 /**
- *
+ * @author youhh
  */
 public class SimpleLoader implements Loader {
 
@@ -20,6 +20,9 @@ public class SimpleLoader implements Loader {
 
     ClassLoader classLoader = null;
 
+    /**
+     * 2个应用都没有用到 为null
+     */
     Container container = null;
 
 

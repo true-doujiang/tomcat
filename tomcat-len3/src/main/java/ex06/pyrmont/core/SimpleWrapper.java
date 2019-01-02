@@ -66,8 +66,9 @@ public class SimpleWrapper implements Wrapper, Pipeline, Lifecycle {
     }
 
     public Servlet loadServlet() throws ServletException {
-        if (instance != null)
+        if (instance != null) {
             return instance;
+        }
 
         Servlet servlet = null;
         String actualClass = servletClass;
@@ -100,10 +101,13 @@ public class SimpleWrapper implements Wrapper, Pipeline, Lifecycle {
 
         // Call the initialization method of this servlet
         try {
+
             servlet.init(null);
+
         } catch (Throwable f) {
             throw new ServletException("Failed initialize servlet.");
         }
+
         return servlet;
     }
 

@@ -24,12 +24,22 @@ public class SimpleContextValve implements Valve, Contained {
 
     protected Container container;
 
+
+    public Container getContainer() {
+        return container;
+    }
+
+    public void setContainer(Container container) {
+        this.container = container;
+    }
+
     public void invoke(Request request, Response response, ValveContext valveContext)
             throws IOException, ServletException {
         // Validate the request and response object types
-        if (!(request.getRequest() instanceof HttpServletRequest) ||
-                !(response.getResponse() instanceof HttpServletResponse)) {
-            return;     // NOTE - Not much else we can do generically
+        if (!(request.getRequest() instanceof HttpServletRequest)
+                || !(response.getResponse() instanceof HttpServletResponse)) {
+            // NOTE - Not much else we can do generically
+            return;
         }
 
         // Disallow any direct access to resources under WEB-INF or META-INF
@@ -60,13 +70,6 @@ public class SimpleContextValve implements Valve, Contained {
         return null;
     }
 
-    public Container getContainer() {
-        return container;
-    }
-
-    public void setContainer(Container container) {
-        this.container = container;
-    }
 
     private void badRequest(String requestURI, HttpServletResponse response) {
         try {
