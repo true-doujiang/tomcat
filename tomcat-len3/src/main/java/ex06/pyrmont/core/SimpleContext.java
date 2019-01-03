@@ -58,9 +58,15 @@ public class SimpleContext implements Context, Pipeline, Lifecycle {
 
     private SimplePipeline pipeline = new SimplePipeline(this);
 
+    /**
+     *
+     */
     private HashMap servletMappings = new HashMap();
+
+
     protected Mapper mapper = null;
     protected HashMap mappers = new HashMap();
+
     private Container parent = null;
 
     protected boolean started = false;
@@ -74,7 +80,6 @@ public class SimpleContext implements Context, Pipeline, Lifecycle {
     /**
      *  implementation of the Lifecycle interface's methods
      */
-
     public void addLifecycleListener(LifecycleListener listener) {
         lifecycle.addLifecycleListener(listener);
     }

@@ -971,16 +971,13 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
 
     // ------------------------------------------------------ Lifecycle Methods
 
-
     /**
      * Add a lifecycle event listener to this component.
      *
      * @param listener The listener to add
      */
     public void addLifecycleListener(LifecycleListener listener) {
-
         lifecycle.addLifecycleListener(listener);
-
     }
 
 
@@ -989,11 +986,8 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * Lifecycle has no listeners registered, a zero-length array is returned.
      */
     public LifecycleListener[] findLifecycleListeners() {
-
         return lifecycle.findLifecycleListeners();
-
     }
-
 
     /**
      * Remove a lifecycle event listener from this component.
@@ -1001,12 +995,130 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * @param listener The listener to add
      */
     public void removeLifecycleListener(LifecycleListener listener) {
-
         lifecycle.removeLifecycleListener(listener);
-
     }
 
 
+    /**
+     * Begin processing requests via this Connector.
+     *
+     * @exception LifecycleException if a fatal startup error occurs
+     *
+     * main线程执行， 然后启动 HttpConnector守护线程
+     */
+    public void start() throws LifecycleException {
+        // Validate and update our current state
+        if (started) {
+            throw new LifecycleException(sm.getString("httpConnector.alreadyStarted"));
+        }
+        threadName = "HttpConnector[" + port + "]";
+
+        // 触发start事件
+        lifecycle.fireLifecycleEvent(START_EVENT, null);
+        started = true;
+
+        // Start our background thread  启动 HttpConnector守护线程
+        threadStart();
+
+        // main线程 初始化一定数量 HttpProcessor 并存入池子中
+        // Create the specified minimum number of processors
+        while (curProcessors < minProcessors) {
+            if ((maxProcessors > 0) && (curProcessors >= maxProcessors)) {
+                break;
+            }
+            HttpProcessor processor = newProcessor();
+            recycle(processor);
+        }
+    }
+
+
+    /**
+     * Terminate processing requests via this Connector.
+     *
+     * @exception LifecycleException if a fatal shutdown error occurs
+     */
+    public void stop() throws LifecycleException {
+        // Validate and update our current state
+        if (!started) {
+            throw new LifecycleException(sm.getString("httpConnector.notStarted"));
+        }
+
+        // 触发stop事件
+        lifecycle.fireLifecycleEvent(STOP_EVENT, null);
+        started = false;
+
+        // Gracefully shut down all processors we have created
+        for (int i = created.size() - 1; i >= 0; i--) {
+            HttpProcessor processor = (HttpProcessor) created.elementAt(i);
+            if (processor instanceof Lifecycle) {
+                try {
+                    ((Lifecycle) processor).stop();
+                } catch (LifecycleException e) {
+                    log("HttpConnector.stop", e);
+                }
+            }
+        }
+
+        synchronized (threadSync) {
+            // Close the server socket we were using
+            if (serverSocket != null) {
+                try {
+                    serverSocket.close();
+                } catch (IOException e) {
+                    ;
+                }
+            }
+            // Stop our background thread
+            threadStop();
+        }
+
+        serverSocket = null;
+    }
+
+// ---------------------------------以上--------------------- Lifecycle Methods
+
+
+    /**
+     * Initialize this connector (create ServerSocket here!)
+     *
+     * 使用工厂设计模式创建一个ServerSocket
+     */
+    public void initialize() throws LifecycleException {
+        if (initialized) {
+            throw new LifecycleException(sm.getString("httpConnector.alreadyInitialized"));
+        }
+
+        this.initialized = true;
+        Exception eRethrow = null;
+
+        // Establish a server socket on the specified port
+        try {
+            //
+            serverSocket = open();
+        } catch (IOException ioe) {
+            log("httpConnector, io problem: ", ioe);
+            eRethrow = ioe;
+        } catch (KeyStoreException kse) {
+            log("httpConnector, keystore problem: ", kse);
+            eRethrow = kse;
+        } catch (NoSuchAlgorithmException nsae) {
+            log("httpConnector, keystore algorithm problem: ", nsae);
+            eRethrow = nsae;
+        } catch (CertificateException ce) {
+            log("httpConnector, certificate problem: ", ce);
+            eRethrow = ce;
+        } catch (UnrecoverableKeyException uke) {
+            log("httpConnector, unrecoverable key: ", uke);
+            eRethrow = uke;
+        } catch (KeyManagementException kme) {
+            log("httpConnector, key management problem: ", kme);
+            eRethrow = kme;
+        }
+
+        if (eRethrow != null) {
+            throw new LifecycleException(threadName + ".open", eRethrow);
+        }
+    }
 
     /**
      * Open and return the server socket for this Connector.  If an IP
@@ -1026,10 +1138,8 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      *
      *   使用工厂设计模式创建一个ServerSocket
      */
-    private ServerSocket open() throws
-            IOException, KeyStoreException, NoSuchAlgorithmException,
-            CertificateException, UnrecoverableKeyException,
-            KeyManagementException {
+    private ServerSocket open() throws IOException, KeyStoreException, NoSuchAlgorithmException,
+            CertificateException, UnrecoverableKeyException, KeyManagementException {
 
         // Acquire the server socket factory for this Connector
         ServerSocketFactory factory = getFactory();
@@ -1061,129 +1171,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
                 throw new BindException(be.getMessage() + ":" + port);
             }
         }
-
     }
-
-    /**
-     * Initialize this connector (create ServerSocket here!)
-     *
-     * 使用工厂设计模式创建一个ServerSocket
-     */
-    public void initialize() throws LifecycleException {
-        if (initialized) {
-            throw new LifecycleException(sm.getString("httpConnector.alreadyInitialized"));
-        }
-
-        this.initialized = true;
-        Exception eRethrow = null;
-
-        // Establish a server socket on the specified port
-        try {
-            serverSocket = open();
-        } catch (IOException ioe) {
-            log("httpConnector, io problem: ", ioe);
-            eRethrow = ioe;
-        } catch (KeyStoreException kse) {
-            log("httpConnector, keystore problem: ", kse);
-            eRethrow = kse;
-        } catch (NoSuchAlgorithmException nsae) {
-            log("httpConnector, keystore algorithm problem: ", nsae);
-            eRethrow = nsae;
-        } catch (CertificateException ce) {
-            log("httpConnector, certificate problem: ", ce);
-            eRethrow = ce;
-        } catch (UnrecoverableKeyException uke) {
-            log("httpConnector, unrecoverable key: ", uke);
-            eRethrow = uke;
-        } catch (KeyManagementException kme) {
-            log("httpConnector, key management problem: ", kme);
-            eRethrow = kme;
-        }
-
-        if (eRethrow != null) {
-            throw new LifecycleException(threadName + ".open", eRethrow);
-        }
-
-    }
-
-
-    /**
-     * Begin processing requests via this Connector.
-     *
-     * @exception LifecycleException if a fatal startup error occurs
-     */
-    public void start() throws LifecycleException {
-
-        // Validate and update our current state
-        if (started) {
-            throw new LifecycleException(sm.getString("httpConnector.alreadyStarted"));
-        }
-        threadName = "HttpConnector[" + port + "]";
-        lifecycle.fireLifecycleEvent(START_EVENT, null);
-        started = true;
-
-        // Start our background thread
-        threadStart();
-        
-        // main线程 初始化一定数量 HttpProcessor 并存入池子中
-        // Create the specified minimum number of processors
-        while (curProcessors < minProcessors) {
-            if ((maxProcessors > 0) && (curProcessors >= maxProcessors)) {
-                break;
-            }
-            HttpProcessor processor = newProcessor();
-            recycle(processor);
-        }
-
-    }
-
-
-    /**
-     * Terminate processing requests via this Connector.
-     *
-     * @exception LifecycleException if a fatal shutdown error occurs
-     */
-    public void stop() throws LifecycleException {
-
-        // Validate and update our current state
-        if (!started) {
-            throw new LifecycleException(sm.getString("httpConnector.notStarted"));
-        }
-        lifecycle.fireLifecycleEvent(STOP_EVENT, null);
-        started = false;
-
-        // Gracefully shut down all processors we have created
-        for (int i = created.size() - 1; i >= 0; i--) {
-            HttpProcessor processor = (HttpProcessor) created.elementAt(i);
-            if (processor instanceof Lifecycle) {
-                try {
-                    ((Lifecycle) processor).stop();
-                } catch (LifecycleException e) {
-                    log("HttpConnector.stop", e);
-                }
-            }
-        }
-
-        synchronized (threadSync) {
-            // Close the server socket we were using
-            if (serverSocket != null) {
-                try {
-                    serverSocket.close();
-                } catch (IOException e) {
-                    ;
-                }
-            }
-            // Stop our background thread
-            threadStop();
-        }
-        serverSocket = null;
-
-    }
-
-
-
-
-
 
     /**
      * Log a message on the Logger associated with our Container (if any).
@@ -1194,13 +1182,14 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
         // 调用servlet容器里的Logger
         Logger logger = container.getLogger();
         String localName = threadName;
-        if (localName == null)
+        if (localName == null) {
             localName = "HttpConnector";
-        if (logger != null)
+        }
+        if (logger != null) {
             logger.log(localName + " " + message);
-        else
+        } else {
             System.out.println(localName + " " + message);
-
+        }
     }
 
 
@@ -1214,8 +1203,9 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
         // 调用servlet容器里的Logger
         Logger logger = container.getLogger();
         String localName = threadName;
-        if (localName == null)
+        if (localName == null) {
             localName = "HttpConnector";
+        }
         if (logger != null) {
             logger.log(localName + " " + message, throwable);
         } else {

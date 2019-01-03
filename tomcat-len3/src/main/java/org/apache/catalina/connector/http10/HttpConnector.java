@@ -102,8 +102,7 @@ import org.apache.catalina.util.StringManager;
  */
 
 
-public final class HttpConnector
-    implements Connector, Lifecycle, Runnable {
+public final class HttpConnector implements Connector, Lifecycle, Runnable {
 
 
     // ----------------------------------------------------- Instance Variables
@@ -1046,7 +1045,7 @@ public final class HttpConnector
         try {
             serverSocket = open();
         } catch (IOException ioe) {
-            log("httpConnector, io problem: ", ioe);
+            log("httpConnector, io problem:: ", ioe);
             eRethrow = ioe;
         } catch (KeyStoreException kse) {
             log("httpConnector, keystore problem: ", kse);

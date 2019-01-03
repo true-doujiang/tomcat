@@ -16,7 +16,8 @@ import org.apache.catalina.connector.http.HttpConnector;
 
 /**
  * @author youhh
- * @desc 启动类
+ *
+ * @desc 生命周期  启动类
  */
 public final class Bootstrap {
     
@@ -36,19 +37,20 @@ public final class Bootstrap {
         context.addChild(wrapper1);
         context.addChild(wrapper2);
 
+        // 设置映射器
         Mapper mapper = new SimpleContextMapper();
         mapper.setProtocol("http");
+        context.addMapper(mapper);
 
-        // 设置监听器
+        // 给SimpleContext容器设置监听器  并没有给其它组件设置
         LifecycleListener listener = new SimpleContextLifecycleListener();
         ((Lifecycle) context).addLifecycleListener(listener);
         
-        context.addMapper(mapper);
-        
+        // 设置类加载器
         Loader loader = new SimpleLoader();
         context.setLoader(loader);
-        
-        // context.addServletMapping(pattern, name);
+
+        // ???     ???
         context.addServletMapping("/Primitive", "Primitive");
         context.addServletMapping("/Modern", "Modern");
         

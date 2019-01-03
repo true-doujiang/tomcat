@@ -8,3 +8,5 @@ target
 out
 .class
 .metadata
+*.iml
+*.txt
