@@ -18,7 +18,7 @@ import org.apache.catalina.Wrapper;
 
 /**
  * @author youhh
- * @desc
+ * @desc Context容器基础阀
  */
 public class SimpleContextValve implements Valve, Contained {
 

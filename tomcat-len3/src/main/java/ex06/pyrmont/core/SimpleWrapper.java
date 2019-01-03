@@ -38,13 +38,94 @@ public class SimpleWrapper implements Wrapper, Pipeline, Lifecycle {
     private Loader loader;
     private String name;
     protected LifecycleSupport lifecycle = new LifecycleSupport(this);
+    
     private SimplePipeline pipeline = new SimplePipeline(this);
+    
     protected Container parent = null;
     protected boolean started = false;
 
 
     public SimpleWrapper() {
         pipeline.setBasic(new SimpleWrapperValve());
+    }
+
+
+    /**
+     *  implementation of the Lifecycle interface's methods
+     */
+
+    public void addLifecycleListener(LifecycleListener listener) {
+    }
+
+    public LifecycleListener[] findLifecycleListeners() {
+        return null;
+    }
+
+    public void removeLifecycleListener(LifecycleListener listener) {
+    }
+
+    public synchronized void start() throws LifecycleException {
+        System.out.println("Starting Wrapper " + name);
+        if (started) {
+            throw new LifecycleException("Wrapper already started");
+		}
+
+        // Notify our interested LifecycleListeners
+        lifecycle.fireLifecycleEvent(BEFORE_START_EVENT, null);
+        started = true;
+
+        // Start our subordinate components, if any
+        if ((loader != null) && (loader instanceof Lifecycle)) {
+        	((Lifecycle) loader).start();
+        }
+
+        // Start the Valves in our pipeline (including the basic), if any
+        if (pipeline instanceof Lifecycle) {
+        	((Lifecycle) pipeline).start();
+        }
+
+        // Notify our interested LifecycleListeners
+        lifecycle.fireLifecycleEvent(START_EVENT, null);
+        // Notify our interested LifecycleListeners
+        lifecycle.fireLifecycleEvent(AFTER_START_EVENT, null);
+    }
+
+    public void stop() throws LifecycleException {
+        System.out.println("Stopping wrapper " + name);
+        // Shut down our servlet instance (if it has been initialized)
+        try {
+        	/**
+        	 * 调用Servlet实例的destroy()
+        	 */
+            instance.destroy();
+        } catch (Throwable t) {
+
+        }
+        
+        instance = null;
+        if (!started) {
+        	throw new LifecycleException("Wrapper " + name + " not started");
+        }
+            
+        // Notify our interested LifecycleListeners
+        lifecycle.fireLifecycleEvent(BEFORE_STOP_EVENT, null);
+
+        // Notify our interested LifecycleListeners
+        lifecycle.fireLifecycleEvent(STOP_EVENT, null);
+        started = false;
+
+        // Stop the Valves in our pipeline (including the basic), if any
+        if (pipeline instanceof Lifecycle) {
+            ((Lifecycle) pipeline).stop();
+        }
+
+        // Stop our subordinate components, if any
+        if ((loader != null) && (loader instanceof Lifecycle)) {
+            ((Lifecycle) loader).stop();
+        }
+
+        // Notify our interested LifecycleListeners
+        lifecycle.fireLifecycleEvent(AFTER_STOP_EVENT, null);
     }
 
     public synchronized void addValve(Valve valve) {
@@ -341,68 +422,4 @@ public class SimpleWrapper implements Wrapper, Pipeline, Lifecycle {
         pipeline.removeValve(valve);
     }
 
-    // implementation of the Lifecycle interface's methods
-    public void addLifecycleListener(LifecycleListener listener) {
-    }
-
-    public LifecycleListener[] findLifecycleListeners() {
-        return null;
-    }
-
-    public void removeLifecycleListener(LifecycleListener listener) {
-    }
-
-    public synchronized void start() throws LifecycleException {
-        System.out.println("Starting Wrapper " + name);
-        if (started)
-            throw new LifecycleException("Wrapper already started");
-
-        // Notify our interested LifecycleListeners
-        lifecycle.fireLifecycleEvent(BEFORE_START_EVENT, null);
-        started = true;
-
-        // Start our subordinate components, if any
-        if ((loader != null) && (loader instanceof Lifecycle))
-            ((Lifecycle) loader).start();
-
-        // Start the Valves in our pipeline (including the basic), if any
-        if (pipeline instanceof Lifecycle)
-            ((Lifecycle) pipeline).start();
-
-        // Notify our interested LifecycleListeners
-        lifecycle.fireLifecycleEvent(START_EVENT, null);
-        // Notify our interested LifecycleListeners
-        lifecycle.fireLifecycleEvent(AFTER_START_EVENT, null);
-    }
-
-    public void stop() throws LifecycleException {
-        System.out.println("Stopping wrapper " + name);
-        // Shut down our servlet instance (if it has been initialized)
-        try {
-            instance.destroy();
-        } catch (Throwable t) {
-        }
-        instance = null;
-        if (!started)
-            throw new LifecycleException("Wrapper " + name + " not started");
-        // Notify our interested LifecycleListeners
-        lifecycle.fireLifecycleEvent(BEFORE_STOP_EVENT, null);
-
-        // Notify our interested LifecycleListeners
-        lifecycle.fireLifecycleEvent(STOP_EVENT, null);
-        started = false;
-
-        // Stop the Valves in our pipeline (including the basic), if any
-        if (pipeline instanceof Lifecycle) {
-            ((Lifecycle) pipeline).stop();
-        }
-
-        // Stop our subordinate components, if any
-        if ((loader != null) && (loader instanceof Lifecycle)) {
-            ((Lifecycle) loader).stop();
-        }
-
-        // Notify our interested LifecycleListeners
-        lifecycle.fireLifecycleEvent(AFTER_STOP_EVENT, null);
-    }
 }
