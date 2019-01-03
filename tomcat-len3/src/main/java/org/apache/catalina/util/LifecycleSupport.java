@@ -81,8 +81,25 @@ import org.apache.catalina.LifecycleListener;
 public final class LifecycleSupport {
 
 
-    // ----------------------------------------------------------- Constructors
+    // ----------------------------------------------------- Instance Variables
 
+    /**
+     * The source component for lifecycle events that we will fire.
+     *
+     *  某个生命周期, 构造器中初始化
+     */
+    private Lifecycle lifecycle = null;
+
+
+    /**
+     * The set of registered LifecycleListeners for event notifications.
+     *
+     * 某个生命周期的监听器们
+     */
+    private LifecycleListener[] listeners = new LifecycleListener[0];
+
+
+    // ----------------------------------------------------------- Constructors
 
     /**
      * Construct a new LifecycleSupport object associated with the specified
@@ -92,30 +109,12 @@ public final class LifecycleSupport {
      *  of events that we fire
      */
     public LifecycleSupport(Lifecycle lifecycle) {
-
         super();
         this.lifecycle = lifecycle;
-
     }
 
 
-    // ----------------------------------------------------- Instance Variables
-
-
-    /**
-     * The source component for lifecycle events that we will fire.
-     */
-    private Lifecycle lifecycle = null;
-
-
-    /**
-     * The set of registered LifecycleListeners for event notifications.
-     */
-    private LifecycleListener listeners[] = new LifecycleListener[0];
-
-
     // --------------------------------------------------------- Public Methods
-
 
     /**
      * Add a lifecycle event listener to this component.
@@ -125,10 +124,11 @@ public final class LifecycleSupport {
     public void addLifecycleListener(LifecycleListener listener) {
 
       synchronized (listeners) {
-          LifecycleListener results[] = new LifecycleListener[listeners.length + 1];
-          for (int i = 0; i < listeners.length; i++)
+          LifecycleListener[] results = new LifecycleListener[listeners.length + 1];
+          for (int i = 0; i < listeners.length; i++) {
               results[i] = listeners[i];
-          
+          }
+
           results[listeners.length] = listener;
           listeners = results;
       }
@@ -141,9 +141,7 @@ public final class LifecycleSupport {
      * Lifecycle has no listeners registered, a zero-length array is returned.
      */
     public LifecycleListener[] findLifecycleListeners() {
-
         return listeners;
-
     }
 
 
@@ -154,19 +152,22 @@ public final class LifecycleSupport {
      *
      * @param type Event type
      * @param data Event data
+     *
+     *    触发一个生命周期事件,所有的事件监听器都会收到通知
      */
     public void fireLifecycleEvent(String type, Object data) {
 
         LifecycleEvent event = new LifecycleEvent(lifecycle, type, data);
        
-        LifecycleListener interested[] = null;
+        LifecycleListener[] interested = null;
         synchronized (listeners) {
             interested = (LifecycleListener[]) listeners.clone();
         }
         
-        for (int i = 0; i < interested.length; i++)
+        for (int i = 0; i < interested.length; i++) {
+            // 触发每个事件监听器的方法
             interested[i].lifecycleEvent(event);
-
+        }
     }
 
 
@@ -185,18 +186,20 @@ public final class LifecycleSupport {
                     break;
                 }
             }
-            if (n < 0)
+
+            if (n < 0) {
                 return;
-            LifecycleListener results[] =
-              new LifecycleListener[listeners.length - 1];
+            }
+
+            LifecycleListener[] results = new LifecycleListener[listeners.length - 1];
             int j = 0;
             for (int i = 0; i < listeners.length; i++) {
-                if (i != n)
+                if (i != n) {
                     results[j++] = listeners[i];
+                }
             }
             listeners = results;
         }
-
     }
 
 

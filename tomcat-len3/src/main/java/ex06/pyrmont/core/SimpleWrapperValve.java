@@ -24,6 +24,15 @@ public class SimpleWrapperValve implements Valve, Contained {
 
     protected Container container;
 
+
+    public Container getContainer() {
+        return container;
+    }
+
+    public void setContainer(Container container) {
+        this.container = container;
+    }
+
     public void invoke(Request request, Response response, ValveContext valveContext)
             throws IOException, ServletException {
 
@@ -54,11 +63,4 @@ public class SimpleWrapperValve implements Valve, Contained {
         return null;
     }
 
-    public Container getContainer() {
-        return container;
-    }
-
-    public void setContainer(Container container) {
-        this.container = container;
-    }
 }

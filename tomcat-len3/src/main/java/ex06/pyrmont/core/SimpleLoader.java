@@ -40,6 +40,29 @@ public class SimpleLoader implements Loader, Lifecycle {
 
     }
 
+    /**
+     *  implementation of the Lifecycle interface's methods
+     */
+    public void addLifecycleListener(LifecycleListener listener) {
+    }
+
+    public LifecycleListener[] findLifecycleListeners() {
+        return null;
+    }
+
+    public void removeLifecycleListener(LifecycleListener listener) {
+    }
+
+    public synchronized void start() throws LifecycleException {
+        System.out.println("Starting SimpleLoader");
+    }
+
+    public void stop() throws LifecycleException {
+    }
+
+    /**
+     *  implementation of the Loader interface's methods
+     */
     public ClassLoader getClassLoader() {
         return classLoader;
     }
@@ -94,22 +117,5 @@ public class SimpleLoader implements Loader, Lifecycle {
     public void removePropertyChangeListener(PropertyChangeListener listener) {
     }
 
-    // implementation of the Lifecycle interface's methods
-    public void addLifecycleListener(LifecycleListener listener) {
-    }
-
-    public LifecycleListener[] findLifecycleListeners() {
-        return null;
-    }
-
-    public void removeLifecycleListener(LifecycleListener listener) {
-    }
-
-    public synchronized void start() throws LifecycleException {
-        System.out.println("Starting SimpleLoader");
-    }
-
-    public void stop() throws LifecycleException {
-    }
 
 }

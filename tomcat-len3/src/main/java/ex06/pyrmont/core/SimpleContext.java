@@ -50,12 +50,19 @@ public class SimpleContext implements Context, Pipeline, Lifecycle {
 
     protected HashMap children = new HashMap();
     private Loader loader = null;
+
+    /**
+     *  生命周期工具类
+     */
     protected LifecycleSupport lifecycle = new LifecycleSupport(this);
+
     private SimplePipeline pipeline = new SimplePipeline(this);
+
     private HashMap servletMappings = new HashMap();
     protected Mapper mapper = null;
     protected HashMap mappers = new HashMap();
     private Container parent = null;
+
     protected boolean started = false;
 
 
@@ -63,6 +70,123 @@ public class SimpleContext implements Context, Pipeline, Lifecycle {
         pipeline.setBasic(new SimpleContextValve());
     }
 
+
+    /**
+     *  implementation of the Lifecycle interface's methods
+     */
+
+    public void addLifecycleListener(LifecycleListener listener) {
+        lifecycle.addLifecycleListener(listener);
+    }
+
+    public LifecycleListener[] findLifecycleListeners() {
+        return null;
+    }
+
+    public void removeLifecycleListener(LifecycleListener listener) {
+        lifecycle.removeLifecycleListener(listener);
+    }
+
+    /**
+     *
+     */
+    public synchronized void start() throws LifecycleException {
+        if (started) {
+            throw new LifecycleException("SimpleContext has already started");
+        }
+
+        // Notify our interested LifecycleListeners
+        lifecycle.fireLifecycleEvent(BEFORE_START_EVENT, null);
+        started = true;
+        try {
+            // Start our subordinate components, if any
+            if ((loader != null) && (loader instanceof Lifecycle)) {
+                ((Lifecycle) loader).start();
+            }
+
+            // Start our child containers, if any
+            Container[] children = findChildren();
+            for (int i = 0; i < children.length; i++) {
+                if (children[i] instanceof Lifecycle) {
+                    ((Lifecycle) children[i]).start();
+                }
+            }
+
+            // Start the Valves in our pipeline (including the basic),
+            // if any
+            if (pipeline instanceof Lifecycle) {
+                ((Lifecycle) pipeline).start();
+            }
+
+            // Notify our interested LifecycleListeners
+            lifecycle.fireLifecycleEvent(START_EVENT, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Notify our interested LifecycleListeners
+        lifecycle.fireLifecycleEvent(AFTER_START_EVENT, null);
+    }
+
+    /**
+     *
+     */
+    public void stop() throws LifecycleException {
+        if (!started) {
+            throw new LifecycleException("SimpleContext has not been started");
+        }
+
+        // Notify our interested LifecycleListeners
+        lifecycle.fireLifecycleEvent(BEFORE_STOP_EVENT, null);
+        lifecycle.fireLifecycleEvent(STOP_EVENT, null);
+        started = false;
+        try {
+            // Stop the Valves in our pipeline (including the basic), if any
+            if (pipeline instanceof Lifecycle) {
+                ((Lifecycle) pipeline).stop();
+            }
+
+            // Stop our child containers, if any
+            Container children[] = findChildren();
+            for (int i = 0; i < children.length; i++) {
+                if (children[i] instanceof Lifecycle) {
+                    ((Lifecycle) children[i]).stop();
+                }
+            }
+
+            if ((loader != null) && (loader instanceof Lifecycle)) {
+                ((Lifecycle) loader).stop();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // Notify our interested LifecycleListeners
+        lifecycle.fireLifecycleEvent(AFTER_STOP_EVENT, null);
+    }
+
+
+    /**
+     * method implementations of Pipeline
+     */
+    public Valve getBasic() {
+        return pipeline.getBasic();
+    }
+
+    public void setBasic(Valve valve) {
+        pipeline.setBasic(valve);
+    }
+
+    public synchronized void addValve(Valve valve) {
+        pipeline.addValve(valve);
+    }
+
+    public Valve[] getValves() {
+        return pipeline.getValves();
+    }
+
+    public void removeValve(Valve valve) {
+        pipeline.removeValve(valve);
+    }
 
     public Object[] getApplicationListeners() {
         return null;
@@ -581,13 +705,15 @@ public class SimpleContext implements Context, Pipeline, Lifecycle {
     public void addMapper(Mapper mapper) {
         // this method is adopted from addMapper in ContainerBase
         // the first mapper added becomes the default mapper
-        mapper.setContainer((Container) this);      // May throw IAE
+        // May throw IAE
+        mapper.setContainer((Container) this);
         this.mapper = mapper;
         synchronized (mappers) {
             if (mappers.get(mapper.getProtocol()) != null) {
                 throw new IllegalArgumentException("addMapper:  Protocol '" + mapper.getProtocol() + "' is not unique");
             }
-            mapper.setContainer((Container) this);      // May throw IAE
+            // May throw IAE
+            mapper.setContainer((Container) this);
             mappers.put(mapper.getProtocol(), mapper);
             if (mappers.size() == 1) { 
                 this.mapper = mapper;
@@ -601,17 +727,19 @@ public class SimpleContext implements Context, Pipeline, Lifecycle {
     }
 
     public Container findChild(String name) {
-        if (name == null)
-            return (null);
-        synchronized (children) {       // Required by post-start changes
+        if (name == null) {
+            return null;
+        }
+        synchronized (children) {
+            // Required by post-start changes
             return ((Container) children.get(name));
         }
     }
 
     public Container[] findChildren() {
         synchronized (children) {
-            Container results[] = new Container[children.size()];
-            return ((Container[]) children.values().toArray(results));
+            Container[] results = new Container[children.size()];
+            return (Container[]) children.values().toArray(results);
         }
     }
 
@@ -622,33 +750,42 @@ public class SimpleContext implements Context, Pipeline, Lifecycle {
     public Mapper findMapper(String protocol) {
         // the default mapper will always be returned, if any,
         // regardless the value of protocol
-        if (mapper != null)
-            return (mapper);
-        else
+        if (mapper != null) {
+            return mapper;
+        } else {
             synchronized (mappers) {
-                return ((Mapper) mappers.get(protocol));
+                return (Mapper) mappers.get(protocol);
             }
+        }
+
     }
 
     public Mapper[] findMappers() {
         return null;
     }
 
-    public void invoke(Request request, Response response)
-            throws IOException, ServletException {
+    /**
+     *
+     *
+     */
+    public void invoke(Request request, Response response) throws IOException, ServletException {
         pipeline.invoke(request, response);
     }
 
+    /**
+     *
+     */
     public Container map(Request request, boolean update) {
         //this method is taken from the map method in org.apache.cataline.core.ContainerBase
         //the findMapper method always returns the default mapper, if any, regardless the
         //request's protocol
         Mapper mapper = findMapper(request.getRequest().getProtocol());
-        if (mapper == null)
+        if (mapper == null) {
             return (null);
+        }
 
         // Use this Mapper to perform this mapping
-        return (mapper.map(request, update));
+        return mapper.map(request, update);
     }
 
     public void removeChild(Container child) {
@@ -663,100 +800,5 @@ public class SimpleContext implements Context, Pipeline, Lifecycle {
     public void removePropertyChangeListener(PropertyChangeListener listener) {
     }
 
-    // method implementations of Pipeline
-    public Valve getBasic() {
-        return pipeline.getBasic();
-    }
-
-    public void setBasic(Valve valve) {
-        pipeline.setBasic(valve);
-    }
-
-    public synchronized void addValve(Valve valve) {
-        pipeline.addValve(valve);
-    }
-
-    public Valve[] getValves() {
-        return pipeline.getValves();
-    }
-
-    public void removeValve(Valve valve) {
-        pipeline.removeValve(valve);
-    }
-
-    // implementation of the Lifecycle interface's methods
-    public void addLifecycleListener(LifecycleListener listener) {
-        lifecycle.addLifecycleListener(listener);
-    }
-
-    public LifecycleListener[] findLifecycleListeners() {
-        return null;
-    }
-
-    public void removeLifecycleListener(LifecycleListener listener) {
-        lifecycle.removeLifecycleListener(listener);
-    }
-
-    public synchronized void start() throws LifecycleException {
-        if (started)
-            throw new LifecycleException("SimpleContext has already started");
-
-        // Notify our interested LifecycleListeners
-        lifecycle.fireLifecycleEvent(BEFORE_START_EVENT, null);
-        started = true;
-        try {
-            // Start our subordinate components, if any
-            if ((loader != null) && (loader instanceof Lifecycle))
-                ((Lifecycle) loader).start();
-
-            // Start our child containers, if any
-            Container children[] = findChildren();
-            for (int i = 0; i < children.length; i++) {
-                if (children[i] instanceof Lifecycle)
-                    ((Lifecycle) children[i]).start();
-            }
-
-            // Start the Valves in our pipeline (including the basic),
-            // if any
-            if (pipeline instanceof Lifecycle)
-                ((Lifecycle) pipeline).start();
-            // Notify our interested LifecycleListeners
-            lifecycle.fireLifecycleEvent(START_EVENT, null);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // Notify our interested LifecycleListeners
-        lifecycle.fireLifecycleEvent(AFTER_START_EVENT, null);
-    }
-
-    public void stop() throws LifecycleException {
-        if (!started)
-            throw new LifecycleException("SimpleContext has not been started");
-        // Notify our interested LifecycleListeners
-        lifecycle.fireLifecycleEvent(BEFORE_STOP_EVENT, null);
-        lifecycle.fireLifecycleEvent(STOP_EVENT, null);
-        started = false;
-        try {
-            // Stop the Valves in our pipeline (including the basic), if any
-            if (pipeline instanceof Lifecycle) {
-                ((Lifecycle) pipeline).stop();
-            }
-
-            // Stop our child containers, if any
-            Container children[] = findChildren();
-            for (int i = 0; i < children.length; i++) {
-                if (children[i] instanceof Lifecycle)
-                    ((Lifecycle) children[i]).stop();
-            }
-            if ((loader != null) && (loader instanceof Lifecycle)) {
-                ((Lifecycle) loader).stop();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        // Notify our interested LifecycleListeners
-        lifecycle.fireLifecycleEvent(AFTER_STOP_EVENT, null);
-    }
 
 }

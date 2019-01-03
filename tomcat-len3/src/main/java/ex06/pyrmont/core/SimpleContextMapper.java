@@ -21,12 +21,13 @@ public class SimpleContextMapper implements Mapper {
     private SimpleContext context = null;
 
     public Container getContainer() {
-        return (context);
+        return context;
     }
 
     public void setContainer(Container container) {
-        if (!(container instanceof SimpleContext))
+        if (!(container instanceof SimpleContext)) {
             throw new IllegalArgumentException("Illegal type of container");
+        }
         context = (SimpleContext) container;
     }
 
@@ -50,8 +51,10 @@ public class SimpleContextMapper implements Mapper {
      */
     public Container map(Request request, boolean update) {
         // Has this request already been mapped?
-        if (update && (request.getWrapper() != null))
+        if (update && (request.getWrapper() != null)) {
             return (request.getWrapper());
+        }
+
         // Identify the context-relative URI to be mapped
         String contextPath = ((HttpServletRequest) request.getRequest()).getContextPath();
         String requestURI = ((HttpRequest) request).getDecodedRequestURI();
@@ -61,8 +64,9 @@ public class SimpleContextMapper implements Mapper {
         String servletPath = relativeURI;
         String pathInfo = null;
         String name = context.findServletMapping(relativeURI);
-        if (name != null)
+        if (name != null) {
             wrapper = (Wrapper) context.findChild(name);
+        }
 
         // Update the Request (if requested) and return this Wrapper
         if (update) {
