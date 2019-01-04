@@ -11,6 +11,7 @@ import org.apache.catalina.Wrapper;
 import org.apache.catalina.connector.http.HttpConnector;
 /**
  * @author youhh
+ * @desc Wrapper 容器
  */
 public final class Bootstrap1 {
 

@@ -15,6 +15,7 @@ import org.apache.catalina.Wrapper;
 import org.apache.catalina.connector.http.HttpConnector;
 /**
  * @author youhh
+ * @desc Context 容器
  */
 public final class Bootstrap2 {
 
@@ -34,14 +35,14 @@ public final class Bootstrap2 {
         // 创建 Context 容器
         Context context = new SimpleContext();
 
-        // 1. 添加子容器
+        // 1. Context容器添加子容器
         context.addChild(wrapper1);
         context.addChild(wrapper2);
 
         Valve valve1 = new HeaderLoggerValve();
         Valve valve2 = new ClientIPLoggerValve();
 
-        // 2. 添加阀
+        // 2. Context容器添加阀
         ((Pipeline) context).addValve(valve1);
         ((Pipeline) context).addValve(valve2);
 
@@ -51,12 +52,12 @@ public final class Bootstrap2 {
 //        Mapper mapper2 = new SimpleContextMapper();
 //        mapper2.setProtocol("https");
 
-        // 3. 添加映射器
+        // 3. Context容器添加映射器
         context.addMapper(mapper);
 //        context.addMapper(mapper2);
 
         Loader loader = new SimpleLoader();
-        // 4. 添加类加载器
+        // 4. Context容器添加类加载器
         context.setLoader(loader);
 
         // context.addServletMapping(pattern, name);

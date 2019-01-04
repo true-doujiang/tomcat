@@ -971,8 +971,9 @@ final class HttpProcessor implements Lifecycle, Runnable {
                 }
                 
                 try {
-                    if (output != null)
+                    if (output != null) {
                         output.flush();
+                    }
                 } catch (IOException e) {
                     ok = false;
                 }
@@ -1031,11 +1032,9 @@ final class HttpProcessor implements Lifecycle, Runnable {
                 continue;
             }
 
-
-
             // Process the request from this socket
             try {
-                /*
+                /**
                  * process() 做3件事情
                  * 1. 解析链接
                  * 2. 解析请求
@@ -1176,9 +1175,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
      * @param listener The listener to add
      */
     public void addLifecycleListener(LifecycleListener listener) {
-
         lifecycle.addLifecycleListener(listener);
-
     }
 
 
@@ -1187,9 +1184,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
      * Lifecycle has no listeners registered, a zero-length array is returned.
      */
     public LifecycleListener[] findLifecycleListeners() {
-
         return lifecycle.findLifecycleListeners();
-
     }
 
 
@@ -1199,9 +1194,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
      * @param listener The listener to add
      */
     public void removeLifecycleListener(LifecycleListener listener) {
-
         lifecycle.removeLifecycleListener(listener);
-
     }
 
 
@@ -1211,15 +1204,12 @@ final class HttpProcessor implements Lifecycle, Runnable {
      * @exception LifecycleException if a fatal startup error occurs
      */
     public void start() throws LifecycleException {
-
         if (started) {
             throw new LifecycleException(sm.getString("httpProcessor.alreadyStarted"));
         }
         lifecycle.fireLifecycleEvent(START_EVENT, null);
         started = true;
-
         threadStart();
-
     }
 
 
@@ -1229,15 +1219,12 @@ final class HttpProcessor implements Lifecycle, Runnable {
      * @exception LifecycleException if a fatal shutdown error occurs
      */
     public void stop() throws LifecycleException {
-
         if (!started) {
             throw new LifecycleException(sm.getString("httpProcessor.notStarted"));
         }
         lifecycle.fireLifecycleEvent(STOP_EVENT, null);
         started = false;
-
         threadStop();
-
     }
 
 
@@ -1247,9 +1234,7 @@ final class HttpProcessor implements Lifecycle, Runnable {
      * Return a String value representing this object.
      */
     public String toString() {
-
         return (this.threadName);
-
     }
 
 
@@ -1261,11 +1246,10 @@ final class HttpProcessor implements Lifecycle, Runnable {
      * @param message Message to be logged
      */
     private void log(String message) {
-
         Logger logger = connector.getContainer().getLogger();
-        if (logger != null)
+        if (logger != null) {
             logger.log(threadName + " " + message);
-
+        }
     }
 
 
@@ -1276,11 +1260,10 @@ final class HttpProcessor implements Lifecycle, Runnable {
      * @param throwable Associated exception
      */
     private void log(String message, Throwable throwable) {
-
         Logger logger = connector.getContainer().getLogger();
-        if (logger != null)
+        if (logger != null) {
             logger.log(threadName + " " + message, throwable);
-
+        }
     }
 
 
