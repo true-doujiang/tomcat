@@ -35,20 +35,20 @@ public class SimpleContextValve implements Valve, Contained {
     /**
      *
      */
-    public void invoke(Request request, Response response, ValveContext valveContext)
+    public void invoke(Request req, Response resp, ValveContext valveContext)
             throws IOException, ServletException {
 
         // Validate the request and response object types
-        if (!(request.getRequest() instanceof HttpServletRequest)
-                || !(response.getResponse() instanceof HttpServletResponse)) {
-            return;     // NOTE - Not much else we can do generically
+        if (!(req.getRequest() instanceof HttpServletRequest) || !(resp.getResponse() instanceof HttpServletResponse)) {
+            // NOTE - Not much else we can do generically
+            return;
         }
 
         // Disallow any direct access to resources under WEB-INF or META-INF
-        HttpServletRequest hreq = (HttpServletRequest) request.getRequest();
+        HttpServletRequest hreq = (HttpServletRequest) req.getRequest();
         String contextPath = hreq.getContextPath();
 
-        String requestURI = ((HttpRequest) request).getDecodedRequestURI();
+        String requestURI = ((HttpRequest) req).getDecodedRequestURI();
         String relativeURI = requestURI.substring(contextPath.length()).toUpperCase();
 
         // 获取Context容器
@@ -57,21 +57,24 @@ public class SimpleContextValve implements Valve, Contained {
         // Select the Wrapper to be used for this Request
         Wrapper wrapper = null;
         try {
-            wrapper = (Wrapper) context.map(request, true);
+            /**
+             * 这里的逻辑 挺重要的
+             */
+            wrapper = (Wrapper) context.map(req, true);
         } catch (IllegalArgumentException e) {
-            badRequest(requestURI, (HttpServletResponse) response.getResponse());
+            badRequest(requestURI, (HttpServletResponse) resp.getResponse());
             return;
         }
 
         if (wrapper == null) {
-            notFound(requestURI, (HttpServletResponse) response.getResponse());
+            notFound(requestURI, (HttpServletResponse) resp.getResponse());
             return;
         }
 
         // Ask this Wrapper to process this Request
-        response.setContext(context);
+        resp.setContext(context);
 
-        wrapper.invoke(request, response);
+        wrapper.invoke(req, resp);
     }
 
     public String getInfo() {

@@ -101,6 +101,8 @@ public class FileLogger extends LoggerBase implements Lifecycle {
 
     /**
      * The directory in which log files are created.
+     *
+     * 日志目录
      */
     private String directory = "logs";
 
@@ -108,8 +110,7 @@ public class FileLogger extends LoggerBase implements Lifecycle {
     /**
      * The descriptive information about this implementation.
      */
-    protected static final String info =
-        "org.apache.catalina.logger.FileLogger/1.0";
+    protected static final String info = "org.apache.catalina.logger.FileLogger/1.0";
 
 
     /**
@@ -127,8 +128,7 @@ public class FileLogger extends LoggerBase implements Lifecycle {
     /**
      * The string manager for this package.
      */
-    private StringManager sm =
-        StringManager.getManager(Constants.Package);
+    private StringManager sm = StringManager.getManager(Constants.Package);
 
 
     /**
@@ -162,9 +162,7 @@ public class FileLogger extends LoggerBase implements Lifecycle {
      * Return the directory in which we create log files.
      */
     public String getDirectory() {
-
         return (directory);
-
     }
 
 
@@ -174,11 +172,9 @@ public class FileLogger extends LoggerBase implements Lifecycle {
      * @param directory The new log file directory
      */
     public void setDirectory(String directory) {
-
         String oldDirectory = this.directory;
         this.directory = directory;
         support.firePropertyChange("directory", oldDirectory, this.directory);
-
     }
 
 
@@ -186,9 +182,7 @@ public class FileLogger extends LoggerBase implements Lifecycle {
      * Return the log file prefix.
      */
     public String getPrefix() {
-
         return (prefix);
-
     }
 
 
@@ -198,7 +192,6 @@ public class FileLogger extends LoggerBase implements Lifecycle {
      * @param prefix The new log file prefix
      */
     public void setPrefix(String prefix) {
-
         String oldPrefix = this.prefix;
         this.prefix = prefix;
         support.firePropertyChange("prefix", oldPrefix, this.prefix);
@@ -210,9 +203,7 @@ public class FileLogger extends LoggerBase implements Lifecycle {
      * Return the log file suffix.
      */
     public String getSuffix() {
-
         return (suffix);
-
     }
 
 
@@ -222,11 +213,9 @@ public class FileLogger extends LoggerBase implements Lifecycle {
      * @param suffix The new log file suffix
      */
     public void setSuffix(String suffix) {
-
         String oldSuffix = this.suffix;
         this.suffix = suffix;
         support.firePropertyChange("suffix", oldSuffix, this.suffix);
-
     }
 
 
@@ -234,9 +223,7 @@ public class FileLogger extends LoggerBase implements Lifecycle {
      * Return the timestamp flag.
      */
     public boolean getTimestamp() {
-
         return (timestamp);
-
     }
 
 
@@ -246,11 +233,9 @@ public class FileLogger extends LoggerBase implements Lifecycle {
      * @param timestamp The new timestamp flag
      */
     public void setTimestamp(boolean timestamp) {
-
         boolean oldTimestamp = this.timestamp;
         this.timestamp = timestamp;
         support.firePropertyChange("timestamp", new Boolean(oldTimestamp), new Boolean(this.timestamp));
-
     }
 
 
@@ -262,13 +247,16 @@ public class FileLogger extends LoggerBase implements Lifecycle {
      * log.  The name and type of the servlet log is specific to the
      * servlet container.
      *
-     * @param msg A <code>String</code> specifying the message to be written
-     *  to the log file
+     * @param msg A <code>String</code> specifying the message to be written  to the log file
+     *
+     *
+     *      最重要的方法
      */
     public void log(String msg) {
 
         // Construct the timestamp we will use, if requested
         Timestamp ts = new Timestamp(System.currentTimeMillis());
+        //Timestamp.toString()   yyyymmdd hh:mm: ss.fffffffff
         String tsString = ts.toString().substring(0, 19);
         String tsDate = tsString.substring(0, 10);
 
@@ -300,33 +288,36 @@ public class FileLogger extends LoggerBase implements Lifecycle {
 
     /**
      * Close the currently open log file (if any)
+     *
+     * 关闭日志文件
      */
     private void close() {
-
-        if (writer == null)
+        if (writer == null) {
             return;
-        
+        }
         writer.flush();
         writer.close();
         writer = null;
         date = "";
-
     }
 
 
     /**
      * Open the new log file for the date specified by <code>date</code>.
+     *
+     * 打开一个新文件
      */
     private void open() {
-
         // Create the directory if necessary
         File dir = new File(directory);
-        if (!dir.isAbsolute())
+        if (!dir.isAbsolute()) {
             dir = new File(System.getProperty("catalina.base"), directory);
+        }
         dir.mkdirs();
 
         // Open the current log file
         try {
+            // 添加前缀、后缀
             String pathname = dir.getAbsolutePath() + File.separator + prefix + date + suffix;
             writer = new PrintWriter(new FileWriter(pathname, true), true);
         } catch (IOException e) {
@@ -345,9 +336,7 @@ public class FileLogger extends LoggerBase implements Lifecycle {
      * @param listener The listener to add
      */
     public void addLifecycleListener(LifecycleListener listener) {
-
         lifecycle.addLifecycleListener(listener);
-
     }
 
 
@@ -356,9 +345,7 @@ public class FileLogger extends LoggerBase implements Lifecycle {
      * Lifecycle has no listeners registered, a zero-length array is returned.
      */
     public LifecycleListener[] findLifecycleListeners() {
-
         return lifecycle.findLifecycleListeners();
-
     }
 
 
@@ -368,9 +355,7 @@ public class FileLogger extends LoggerBase implements Lifecycle {
      * @param listener The listener to add
      */
     public void removeLifecycleListener(LifecycleListener listener) {
-
         lifecycle.removeLifecycleListener(listener);
-
     }
 
 
@@ -385,8 +370,9 @@ public class FileLogger extends LoggerBase implements Lifecycle {
     public void start() throws LifecycleException {
 
         // Validate and update our current component state
-        if (started)
+        if (started) {
             throw new LifecycleException(sm.getString("fileLogger.alreadyStarted"));
+        }
         lifecycle.fireLifecycleEvent(START_EVENT, null);
         started = true;
 
@@ -404,13 +390,14 @@ public class FileLogger extends LoggerBase implements Lifecycle {
     public void stop() throws LifecycleException {
 
         // Validate and update our current component state
-        if (!started)
+        if (!started) {
             throw new LifecycleException(sm.getString("fileLogger.notStarted"));
+        }
         lifecycle.fireLifecycleEvent(STOP_EVENT, null);
         started = false;
 
+        // 关闭日志文件
         close();
-
     }
 
 

@@ -99,8 +99,9 @@ public interface Reloader {
 
 
     /**
-     * Have one or more classes or resources been modified so that a reload
-     * is appropriate?
+     * Have one or more classes or resources been modified so that a reload is appropriate?
+     *
+     * Web应用中的某个Servlet或者相关类被修改了 则返回true
      */
     public boolean modified();
 

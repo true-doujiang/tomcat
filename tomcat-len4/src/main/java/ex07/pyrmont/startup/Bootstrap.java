@@ -18,7 +18,10 @@ import org.apache.catalina.connector.http.HttpConnector;
 
 /**
  * @author youhh
- * @desc
+ * @desc 第七章 日志记录器
+ *
+ * 相较于前一章 只有SimpleContext、 BootStrap类变化了
+ *
  */
 public final class Bootstrap {
 

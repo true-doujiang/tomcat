@@ -89,14 +89,15 @@ public class SimpleContext implements Context, Pipeline {
         if (name == null) {
             return (null);
         }
-        synchronized (children) {       // Required by post-start changes
+        // Required by post-start changes
+        synchronized (children) {
             return (Container) children.get(name);
         }
     }
 
     public Container[] findChildren() {
         synchronized (children) {
-            Container results[] = new Container[children.size()];
+            Container[] results = new Container[children.size()];
             return (Container[]) children.values().toArray(results);
         }
     }
@@ -109,7 +110,9 @@ public class SimpleContext implements Context, Pipeline {
     }
 
 
-    // method implementations of Pipeline
+    /**
+     *  method implementations of Pipeline
+     */
     public Valve getBasic() {
         return pipeline.getBasic();
     }
@@ -131,9 +134,7 @@ public class SimpleContext implements Context, Pipeline {
     }
 
     /**
-     *
-     * 以下实现了与映射器相关的方法
-     *
+     *  以下实现了与映射器相关的方法
      */
     public void addServletMapping(String pattern, String name) {
         synchronized (servletMappings) {
@@ -141,6 +142,9 @@ public class SimpleContext implements Context, Pipeline {
         }
     }
 
+    /**
+     *
+     */
     public String findServletMapping(String pattern) {
         synchronized (servletMappings) {
             return (String) servletMappings.get(pattern);
@@ -180,7 +184,8 @@ public class SimpleContext implements Context, Pipeline {
                 throw new IllegalArgumentException("addMapper:  Protocol '" + mapper.getProtocol() + "' is not unique");
             }
 
-            mapper.setContainer(this);      // May throw IAE
+            // May throw IAE
+            mapper.setContainer(this);
 
             mappers.put(mapper.getProtocol(), mapper);
 
@@ -244,7 +249,7 @@ public class SimpleContext implements Context, Pipeline {
         return null;
     }
 
-    public void setApplicationListeners(Object listeners[]) {
+    public void setApplicationListeners(Object[] listeners) {
     }
 
     public boolean getAvailable() {

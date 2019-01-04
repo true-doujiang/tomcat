@@ -73,6 +73,12 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
 
     /**
      * The Container used for processing requests received by this Connector.
+     *
+     * 1. log() 方法中用到了container
+     * 2. HttpProcessor.process() {
+     *
+     *         connector.getContainer().invoke(request, response);
+     *    }
      */
     protected Container container = null;
 
@@ -255,9 +261,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * Return the <code>Service</code> with which we are associated (if any).
      */
     public Service getService() {
-
         return (this.service);
-
     }
 
 
@@ -267,9 +271,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * @param service The service that owns this Engine
      */
     public void setService(Service service) {
-
         this.service = service;
-
     }
 
 
@@ -277,9 +279,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * Return the connection timeout for this Connector.
      */
     public int getConnectionTimeout() {
-
         return (connectionTimeout);
-
     }
 
 
@@ -289,9 +289,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * @param connectionTimeout The new connection timeout
      */
     public void setConnectionTimeout(int connectionTimeout) {
-
         this.connectionTimeout = connectionTimeout;
-
     }
 
 
@@ -299,9 +297,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * Return the accept count for this Connector.
      */
     public int getAcceptCount() {
-
-        return (acceptCount);
-
+        return acceptCount;
     }
 
 
@@ -311,9 +307,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * @param count The new accept count
      */
     public void setAcceptCount(int count) {
-
         this.acceptCount = count;
-
     }
 
 
@@ -321,9 +315,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * Get the allow chunking flag.
      */
     public boolean isChunkingAllowed() {
-
-        return (allowChunking);
-
+        return allowChunking;
     }
 
 
@@ -331,9 +323,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * Get the allow chunking flag.
      */
     public boolean getAllowChunking() {
-
         return isChunkingAllowed();
-
     }
 
 
@@ -343,9 +333,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * @param allowChunking Allow chunking flag
      */
     public void setAllowChunking(boolean allowChunking) {
-
         this.allowChunking = allowChunking;
-
     }
 
 
@@ -353,9 +341,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * Return the bind IP address for this Connector.
      */
     public String getAddress() {
-
         return (this.address);
-
     }
 
 
@@ -365,9 +351,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * @param address The bind IP address
      */
     public void setAddress(String address) {
-
         this.address = address;
-
     }
 
 
@@ -375,9 +359,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * Is this connector available for processing requests?
      */
     public boolean isAvailable() {
-
-        return (started);
-
+        return started;
     }
 
 
@@ -385,9 +367,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * Return the input buffer size for this Connector.
      */
     public int getBufferSize() {
-
         return (this.bufferSize);
-
     }
 
 
@@ -397,9 +377,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * @param bufferSize The new input buffer size.
      */
     public void setBufferSize(int bufferSize) {
-
         this.bufferSize = bufferSize;
-
     }
 
 
@@ -408,9 +386,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * Connector.
      */
     public Container getContainer() {
-
-        return (container);
-
+        return container;
     }
 
 
@@ -421,9 +397,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * @param container The new Container to use
      */
     public void setContainer(Container container) {
-
         this.container = container;
-
     }
 
 
@@ -431,9 +405,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * Return the current number of processors that have been created.
      */
     public int getCurProcessors() {
-
         return (curProcessors);
-
     }
 
 
@@ -441,9 +413,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * Return the debugging detail level for this component.
      */
     public int getDebug() {
-
         return (debug);
-
     }
 
 
@@ -453,9 +423,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * @param debug The new debugging detail level
      */
     public void setDebug(int debug) {
-
         this.debug = debug;
-
     }
 
 
@@ -463,9 +431,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * Return the "enable DNS lookups" flag.
      */
     public boolean getEnableLookups() {
-
         return (this.enableLookups);
-
     }
 
 
@@ -475,9 +441,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * @param enableLookups The new "enable DNS lookups" flag value
      */
     public void setEnableLookups(boolean enableLookups) {
-
         this.enableLookups = enableLookups;
-
     }
 
 
@@ -502,9 +466,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * @param factory The new server socket factory
      */
     public void setFactory(ServerSocketFactory factory) {
-
         this.factory = factory;
-
     }
 
 
@@ -512,9 +474,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * Return descriptive information about this Connector implementation.
      */
     public String getInfo() {
-
         return (info);
-
     }
 
 
@@ -534,17 +494,13 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * @param minProcessors The new minimum processors
      */
     public void setMinProcessors(int minProcessors) {
-
         this.minProcessors = minProcessors;
-
     }
 
 
     // Return the maximum number of processors allowed, or <0 for unlimited.
     public int getMaxProcessors() {
-
         return (maxProcessors);
-
     }
 
 
@@ -555,9 +511,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * @param maxProcessors The new maximum processors
      */
     public void setMaxProcessors(int maxProcessors) {
-
         this.maxProcessors = maxProcessors;
-
     }
 
 
@@ -565,9 +519,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * Return the port number on which we listen for HTTP requests.
      */
     public int getPort() {
-
         return (this.port);
-
     }
 
 
@@ -577,9 +529,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * @param port The new port number
      */
     public void setPort(int port) {
-
         this.port = port;
-
     }
 
 
@@ -587,9 +537,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * Return the proxy server name for this Connector.
      */
     public String getProxyName() {
-
         return (this.proxyName);
-
     }
 
 
@@ -599,9 +547,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * @param proxyName The new proxy server name
      */
     public void setProxyName(String proxyName) {
-
         this.proxyName = proxyName;
-
     }
 
 
@@ -609,9 +555,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * Return the proxy server port for this Connector.
      */
     public int getProxyPort() {
-
         return (this.proxyPort);
-
     }
 
 
@@ -621,9 +565,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * @param proxyPort The new proxy server port
      */
     public void setProxyPort(int proxyPort) {
-
         this.proxyPort = proxyPort;
-
     }
 
 
@@ -633,9 +575,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * with a transport guarantee that requires SSL.
      */
     public int getRedirectPort() {
-
         return (this.redirectPort);
-
     }
 
 
@@ -645,9 +585,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * @param redirectPort The redirect port number (non-SSL to SSL)
      */
     public void setRedirectPort(int redirectPort) {
-
         this.redirectPort = redirectPort;
-
     }
 
 
@@ -656,9 +594,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * through this connector.  Default value is "http".
      */
     public String getScheme() {
-
         return (this.scheme);
-
     }
 
 
@@ -669,9 +605,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * @param scheme The new scheme
      */
     public void setScheme(String scheme) {
-
         this.scheme = scheme;
-
     }
 
 
@@ -680,9 +614,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * received through this connector.  Default value is "false".
      */
     public boolean getSecure() {
-
         return (this.secure);
-
     }
 
 
@@ -693,9 +625,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * @param secure The new secure connection flag
      */
     public void setSecure(boolean secure) {
-
         this.secure = secure;
-
     }
 
 
@@ -703,9 +633,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * Return the TCP no delay flag value.
      */
     public boolean getTcpNoDelay() {
-
         return (this.tcpNoDelay);
-
     }
 
 
@@ -716,9 +644,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
      * @param tcpNoDelay The new TCP no delay flag
      */
     public void setTcpNoDelay(boolean tcpNoDelay) {
-
         this.tcpNoDelay = tcpNoDelay;
-
     }
 
 
@@ -796,7 +722,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
                 if (maxProcessors < 0) {
                     return newProcessor();
                 } else {
-                    return (null);
+                    return null;
                 }
             }
         }
@@ -807,6 +733,8 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
     /**
      * Create and return a new processor suitable for processing HTTP
      * requests and returning the corresponding responses.
+     *
+     * 创建一个新的处理器线程
      */
     private HttpProcessor newProcessor() {
 

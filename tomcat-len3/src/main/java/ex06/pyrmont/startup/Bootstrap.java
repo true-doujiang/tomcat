@@ -50,7 +50,6 @@ public final class Bootstrap {
         Loader loader = new SimpleLoader();
         context.setLoader(loader);
 
-        // ???     ???
         context.addServletMapping("/Primitive", "Primitive");
         context.addServletMapping("/Modern", "Modern");
         

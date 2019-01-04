@@ -909,6 +909,8 @@ public interface Context extends Container {
      *
      * @exception IllegalStateException if the <code>reloadable</code>
      *  property is set to <code>false</code>.
+     *
+     *  热加载Servlet类
      */
     public void reload();
 

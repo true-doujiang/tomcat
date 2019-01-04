@@ -140,12 +140,12 @@ import org.apache.naming.resources.Resource;
  * @author Craig R. McClanahan
  * @version $Revision: 1.46 $ $Date: 2002/08/28 10:05:05 $
  */
-public class WebappClassLoader
-    extends URLClassLoader
-    implements Reloader, Lifecycle {
+public class WebappClassLoader extends URLClassLoader implements Reloader, Lifecycle {
 
-    protected class PrivilegedFindResource
-        implements PrivilegedAction {
+    /**
+     *
+     */
+    protected class PrivilegedFindResource implements PrivilegedAction {
 
         private String name;
         private String path;
@@ -190,44 +190,6 @@ public class WebappClassLoader
         "org.apache.xalan"                           // Xalan
     };
 
-
-    // ----------------------------------------------------------- Constructors
-
-
-    /**
-     * Construct a new ClassLoader with no defined repositories and no
-     * parent ClassLoader.
-     */
-    public WebappClassLoader() {
-
-        super(new URL[0]);
-        this.parent = getParent();
-        system = getSystemClassLoader();
-        securityManager = System.getSecurityManager();
-
-        if (securityManager != null) {
-            refreshPolicy();
-        }
-
-    }
-
-
-    /**
-     * Construct a new ClassLoader with no defined repositories and no
-     * parent ClassLoader.
-     */
-    public WebappClassLoader(ClassLoader parent) {
-
-        super(new URL[0], parent);
-        this.parent = getParent();
-        system = getSystemClassLoader();
-        securityManager = System.getSecurityManager();
-
-        if (securityManager != null) {
-            refreshPolicy();
-        }
-
-    }
 
 
     // ----------------------------------------------------- Instance Variables
@@ -394,6 +356,46 @@ public class WebappClassLoader
     private Permission allPermission = new java.security.AllPermission();
 
 
+    // ----------------------------------------------------------- Constructors
+
+
+    /**
+     * Construct a new ClassLoader with no defined repositories and no
+     * parent ClassLoader.
+     */
+    public WebappClassLoader() {
+
+        super(new URL[0]);
+        this.parent = getParent();
+        system = getSystemClassLoader();
+        securityManager = System.getSecurityManager();
+
+        if (securityManager != null) {
+            refreshPolicy();
+        }
+
+    }
+
+
+    /**
+     * Construct a new ClassLoader with no defined repositories and no
+     * parent ClassLoader.
+     */
+    public WebappClassLoader(ClassLoader parent) {
+
+        super(new URL[0], parent);
+        this.parent = getParent();
+        system = getSystemClassLoader();
+        securityManager = System.getSecurityManager();
+
+        if (securityManager != null) {
+            refreshPolicy();
+        }
+
+    }
+
+
+
     // ------------------------------------------------------------- Properties
 
 
@@ -540,9 +542,9 @@ public class WebappClassLoader
 
         // Ignore any of the standard repositories, as they are set up using
         // either addJar or addRepository
-        if (repository.startsWith("/WEB-INF/lib")
-            || repository.startsWith("/WEB-INF/classes"))
+        if (repository.startsWith("/WEB-INF/lib") || repository.startsWith("/WEB-INF/classes")) {
             return;
+        }
 
         // Add this repository to our underlying class loader
         try {
@@ -1525,9 +1527,7 @@ public class WebappClassLoader
      * @exception LifecycleException if a lifecycle error occurs
      */
     public void start() throws LifecycleException {
-
         started = true;
-
     }
 
 
@@ -1577,38 +1577,36 @@ public class WebappClassLoader
      *
      * @return the loaded class, or null if the class isn't found
      */
-    protected Class findClassInternal(String name)
-        throws ClassNotFoundException {
+    protected Class findClassInternal(String name) throws ClassNotFoundException {
 
-        if (!validate(name))
+        if (!validate(name)) {
             throw new ClassNotFoundException(name);
-
+        }
         String tempPath = name.replace('.', '/');
         String classPath = tempPath + ".class";
 
         ResourceEntry entry = null;
 
         if (securityManager != null) {
-            PrivilegedAction dp =
-                new PrivilegedFindResource(name, classPath);
+            PrivilegedAction dp = new PrivilegedFindResource(name, classPath);
             entry = (ResourceEntry)AccessController.doPrivileged(dp);
         } else {
             entry = findResourceInternal(name, classPath);
         }
 
-        if ((entry == null) || (entry.binaryContent == null))
+        if ((entry == null) || (entry.binaryContent == null)) {
             throw new ClassNotFoundException(name);
-
+        }
         Class clazz = entry.loadedClass;
-        if (clazz != null)
+        if (clazz != null) {
             return clazz;
-
+        }
         // Looking up the package
         String packageName = null;
         int pos = name.lastIndexOf('.');
-        if (pos != -1)
+        if (pos != -1) {
             packageName = name.substring(0, pos);
-
+        }
         Package pkg = null;
 
         if (packageName != null) {
@@ -1618,8 +1616,7 @@ public class WebappClassLoader
             // Define the package (if null)
             if (pkg == null) {
                 if (entry.manifest == null) {
-                    definePackage(packageName, null, null, null, null, null,
-                                  null, null);
+                    definePackage(packageName, null, null, null, null, null, null, null);
                 } else {
                     definePackage(packageName, entry.manifest, entry.codeBase);
                 }
@@ -1628,8 +1625,7 @@ public class WebappClassLoader
         }
 
         // Create the code source object
-        CodeSource codeSource =
-            new CodeSource(entry.codeBase, entry.certificates);
+        CodeSource codeSource = new CodeSource(entry.codeBase, entry.certificates);
 
         if (securityManager != null) {
 
@@ -1639,13 +1635,10 @@ public class WebappClassLoader
                 if (pkg.isSealed()) {
                     sealCheck = pkg.isSealed(entry.codeBase);
                 } else {
-                    sealCheck = (entry.manifest == null)
-                        || !isPackageSealed(packageName, entry.manifest);
+                    sealCheck = (entry.manifest == null)|| !isPackageSealed(packageName, entry.manifest);
                 }
                 if (!sealCheck)
-                    throw new SecurityException
-                        ("Sealing violation loading " + name + " : Package "
-                         + packageName + " is sealed.");
+                    throw new SecurityException("Sealing violation loading " + name + " : Package " + packageName + " is sealed.");
             }
 
         }
@@ -1653,9 +1646,7 @@ public class WebappClassLoader
         if (entry.loadedClass == null) {
             synchronized (this) {
                 if (entry.loadedClass == null) {
-                    clazz = defineClass(name, entry.binaryContent, 0,
-                                        entry.binaryContent.length,
-                                        codeSource);
+                    clazz = defineClass(name, entry.binaryContent, 0, entry.binaryContent.length, codeSource);
                     entry.loadedClass = clazz;
                 } else {
                     clazz = entry.loadedClass;
@@ -1738,8 +1729,7 @@ public class WebappClassLoader
 
                         int j;
 
-                        long[] result2 =
-                            new long[lastModifiedDates.length + 1];
+                        long[] result2 = new long[lastModifiedDates.length + 1];
                         for (j = 0; j < lastModifiedDates.length; j++) {
                             result2[j] = lastModifiedDates[j];
                         }
@@ -1806,8 +1796,7 @@ public class WebappClassLoader
             try {
                 int pos = 0;
                 while (true) {
-                    int n = binaryStream.read(binaryContent, pos,
-                                              binaryContent.length - pos);
+                    int n = binaryStream.read(binaryContent, pos, binaryContent.length - pos);
                     if (n <= 0)
                         break;
                     pos += n;

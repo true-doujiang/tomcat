@@ -845,7 +845,7 @@ public final class HttpConnector implements Connector, Lifecycle, Runnable {
             try {
                 ((Lifecycle) processor).start();
             } catch (LifecycleException e) {
-                log("newProcessor", e);
+                log("newProcessor ", e);
                 return (null);
             }
         }
