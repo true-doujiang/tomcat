@@ -53,7 +53,13 @@ public class SimpleContext implements Context, Pipeline, Lifecycle {
 
     protected HashMap children = new HashMap();
     private Loader loader = null;
+
+    /**
+     *
+     */
     private Logger logger = null;
+
+
     protected LifecycleSupport lifecycle = new LifecycleSupport(this);
     private SimplePipeline pipeline = new SimplePipeline(this);
     private HashMap servletMappings = new HashMap();

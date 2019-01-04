@@ -84,8 +84,7 @@ import org.apache.catalina.Logger;
  * @version $Revision: 1.5 $ $Date: 2002/01/25 20:12:20 $
  */
 
-public abstract class LoggerBase
-    implements Logger {
+public abstract class LoggerBase implements Logger {
 
 
     // ----------------------------------------------------- Instance Variables
@@ -106,8 +105,7 @@ public abstract class LoggerBase
     /**
      * The descriptive information about this implementation.
      */
-    protected static final String info =
-        "org.apache.catalina.logger.LoggerBase/1.0";
+    protected static final String info = "org.apache.catalina.logger.LoggerBase/1.0";
 
 
     /**
@@ -118,6 +116,8 @@ public abstract class LoggerBase
 
     /**
      * The verbosity level for above which log messages may be filtered.
+     *
+     * 默认日志级别
      */
     protected int verbosity = ERROR;
 
@@ -215,17 +215,17 @@ public abstract class LoggerBase
      */
     public void setVerbosityLevel(String verbosity) {
 
-        if ("FATAL".equalsIgnoreCase(verbosity))
+        if ("FATAL".equalsIgnoreCase(verbosity)) {
             this.verbosity = FATAL;
-        else if ("ERROR".equalsIgnoreCase(verbosity))
+        } else if ("ERROR".equalsIgnoreCase(verbosity)) {
             this.verbosity = ERROR;
-        else if ("WARNING".equalsIgnoreCase(verbosity))
+        } else if ("WARNING".equalsIgnoreCase(verbosity)) {
             this.verbosity = WARNING;
-        else if ("INFORMATION".equalsIgnoreCase(verbosity))
+        } else if ("INFORMATION".equalsIgnoreCase(verbosity)) {
             this.verbosity = INFORMATION;
-        else if ("DEBUG".equalsIgnoreCase(verbosity))
+        } else if ("DEBUG".equalsIgnoreCase(verbosity)) {
             this.verbosity = DEBUG;
-
+        }
     }
 
 
@@ -249,8 +249,9 @@ public abstract class LoggerBase
      * log.  The name and type of the servlet log is specific to the
      * servlet container.  This message will be logged unconditionally.
      *
-     * @param message A <code>String</code> specifying the message to be
-     *  written to the log file
+     * @param message A <code>String</code> specifying the message to be written to the log file
+     *
+     *   就这个方法没实现， 其它方法都实现了
      */
     public abstract void log(String msg);
 
@@ -282,6 +283,8 @@ public abstract class LoggerBase
      * @param msg A <code>String</code> that describes the error or
      *  exception
      * @param throwable The <code>Throwable</code> error or exception
+     *
+     *     这个咋没有日志级别参数??
      */
     public void log(String msg, Throwable throwable) {
 
@@ -290,10 +293,13 @@ public abstract class LoggerBase
         writer.println(msg);
         throwable.printStackTrace(writer);
         Throwable rootCause = null;
-        if (throwable instanceof LifecycleException)
+
+        if (throwable instanceof LifecycleException) {
             rootCause = ((LifecycleException) throwable).getThrowable();
-        else if (throwable instanceof ServletException)
+        } else if (throwable instanceof ServletException) {
             rootCause = ((ServletException) throwable).getRootCause();
+        }
+
         if (rootCause != null) {
             writer.println("----- Root Cause -----");
             rootCause.printStackTrace(writer);
@@ -311,12 +317,14 @@ public abstract class LoggerBase
      * @param message A <code>String</code> specifying the message to be
      *  written to the log file
      * @param verbosity Verbosity level of this message
+     *
+     *    传入的日志级别低于实例的日志级别 日志才会被输出
      */
     public void log(String message, int verbosity) {
 
-        if (this.verbosity >= verbosity)
+        if (this.verbosity >= verbosity) {
             log(message);
-
+        }
     }
 
 
@@ -329,12 +337,14 @@ public abstract class LoggerBase
      *  exception
      * @param throwable The <code>Throwable</code> error or exception
      * @param verbosity Verbosity level of this message
+     *
+     *  传入的日志级别低于实例的日志级别 日志才会被输出
      */
     public void log(String message, Throwable throwable, int verbosity) {
 
-        if (this.verbosity >= verbosity)
+        if (this.verbosity >= verbosity) {
             log(message, throwable);
-
+        }
     }
 
 
