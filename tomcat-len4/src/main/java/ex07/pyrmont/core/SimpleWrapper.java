@@ -45,7 +45,6 @@ public class SimpleWrapper implements Wrapper, Pipeline, Lifecycle {
     protected boolean started = false;
 
 
-
     public SimpleWrapper() {
         pipeline.setBasic(new SimpleWrapperValve());
     }
