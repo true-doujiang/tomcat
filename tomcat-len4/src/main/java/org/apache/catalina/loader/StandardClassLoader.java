@@ -114,9 +114,7 @@ import org.apache.naming.JndiPermission;
  * @version $Revision: 1.28 $ $Date: 2002/08/06 00:16:59 $
  */
 
-public class StandardClassLoader
-    extends URLClassLoader
-    implements Reloader {
+public class StandardClassLoader extends URLClassLoader implements Reloader {
 
 
     // ----------------------------------------------------------- Constructors

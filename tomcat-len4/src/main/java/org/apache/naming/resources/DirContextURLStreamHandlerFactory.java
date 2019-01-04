@@ -72,8 +72,7 @@ import java.net.URLStreamHandlerFactory;
  * @author <a href="mailto:remm@apache.org">Remy Maucherat</a>
  * @version $Revision: 1.3 $
  */
-public class DirContextURLStreamHandlerFactory 
-    implements URLStreamHandlerFactory {
+public class DirContextURLStreamHandlerFactory implements URLStreamHandlerFactory {
     
     
     // ----------------------------------------------------------- Constructors
