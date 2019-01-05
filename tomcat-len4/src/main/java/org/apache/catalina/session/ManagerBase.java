@@ -89,6 +89,10 @@ import org.apache.catalina.util.StringManager;
  *
  * @author Craig R. McClanahan
  * @version $Revision: 1.12 $ $Date: 2002/09/19 22:55:48 $
+ *
+ *
+ *  工具类
+ *
  */
 
 public abstract class ManagerBase implements Manager {
@@ -200,6 +204,8 @@ public abstract class ManagerBase implements Manager {
     /**
      * The set of currently active Sessions for this Manager, keyed by
      * session identifier.
+     *
+     * Session池
      */
     protected HashMap sessions = new HashMap();
 
@@ -207,8 +213,7 @@ public abstract class ManagerBase implements Manager {
     /**
      * The string manager for this package.
      */
-    protected static StringManager sm =
-        StringManager.getManager(Constants.Package);
+    protected static StringManager sm = StringManager.getManager(Constants.Package);
 
 
     /**
@@ -331,8 +336,7 @@ public abstract class ManagerBase implements Manager {
                 try {
                     this.digest = MessageDigest.getInstance(DEFAULT_ALGORITHM);
                 } catch (NoSuchAlgorithmException f) {
-                    log(sm.getString("managerBase.digest",
-                                     DEFAULT_ALGORITHM), e);
+                    log(sm.getString("managerBase.digest", DEFAULT_ALGORITHM), e);
                     this.digest = null;
                 }
             }
@@ -431,6 +435,8 @@ public abstract class ManagerBase implements Manager {
      * for Sessions created by this Manager.
      *
      * @param interval The new default value
+     *
+     *     Session存活时间 单位秒
      */
     public void setMaxInactiveInterval(int interval) {
 
@@ -478,8 +484,7 @@ public abstract class ManagerBase implements Manager {
                         this.random.setSeed(seed);
                     } catch (Exception e) {
                         // Fall back to the simple case
-                        log(sm.getString("managerBase.random", randomClass),
-                            e);
+                        log(sm.getString("managerBase.random", randomClass), e);
                         this.random = new java.util.Random();
                         this.random.setSeed(seed);
                     }
@@ -512,8 +517,7 @@ public abstract class ManagerBase implements Manager {
 
         String oldRandomClass = this.randomClass;
         this.randomClass = randomClass;
-        support.firePropertyChange("randomClass", oldRandomClass,
-                                   this.randomClass);
+        support.firePropertyChange("randomClass", oldRandomClass, this.randomClass);
 
     }
 
@@ -525,6 +529,7 @@ public abstract class ManagerBase implements Manager {
      * Add this Session to the set of active Sessions for this Manager.
      *
      * @param session Session to be added
+     *                添加一个Session到Session池中（HashMap）
      */
     public void add(Session session) {
 
@@ -568,10 +573,11 @@ public abstract class ManagerBase implements Manager {
                 recycled.remove(size - 1);
             }
         }
-        if (session != null)
+        if (session != null) {
             session.setManager(this);
-        else
+        } else {
             session = new StandardSession(this);
+        }
 
         // Initialize the properties of the new session and return it
         session.setNew(true);
@@ -608,11 +614,14 @@ public abstract class ManagerBase implements Manager {
      *  instantiated for any reason
      * @exception IOException if an input/output error occurs while
      *  processing this request
+     *
+     *
      */
     public Session findSession(String id) throws IOException {
 
         if (id == null)
             return (null);
+
         synchronized (sessions) {
             Session session = (Session) sessions.get(id);
             return (session);
@@ -624,6 +633,8 @@ public abstract class ManagerBase implements Manager {
     /**
      * Return the set of active Sessions associated with this Manager.
      * If this Manager has no active Sessions, a zero-length array is returned.
+     *
+     * 返回所有Session对象
      */
     public Session[] findSessions() {
 
@@ -682,15 +693,19 @@ public abstract class ManagerBase implements Manager {
         for (int i = 0; i < bytes.length; i++) {
             byte b1 = (byte) ((bytes[i] & 0xf0) >> 4);
             byte b2 = (byte) (bytes[i] & 0x0f);
-            if (b1 < 10)
+            if (b1 < 10) {
                 result.append((char) ('0' + b1));
-            else
+            } else {
                 result.append((char) ('A' + (b1 - 10)));
-            if (b2 < 10)
+            }
+
+            if (b2 < 10) {
                 result.append((char) ('0' + b2));
-            else
+            } else {
                 result.append((char) ('A' + (b2 - 10)));
+            }
         }
+
         return (result.toString());
 
     }
@@ -739,14 +754,13 @@ public abstract class ManagerBase implements Manager {
         if (container != null)
             logger = container.getLogger();
         if (logger != null)
-            logger.log(getName() + "[" + container.getName() + "]: "
-                       + message);
+            logger.log(getName() + "[" + container.getName() + "]: " + message);
         else {
             String containerName = null;
             if (container != null)
                 containerName = container.getName();
-            System.out.println(getName() + "[" + containerName
-                               + "]: " + message);
+
+            System.out.println(getName() + "[" + containerName + "]: " + message);
         }
 
     }
@@ -764,14 +778,13 @@ public abstract class ManagerBase implements Manager {
         if (container != null)
             logger = container.getLogger();
         if (logger != null)
-            logger.log(getName() + "[" + container.getName() + "] "
-                       + message, throwable);
+            logger.log(getName() + "[" + container.getName() + "] " + message, throwable);
         else {
             String containerName = null;
             if (container != null)
                 containerName = container.getName();
-            System.out.println(getName() + "[" + containerName
-                               + "]: " + message);
+
+            System.out.println(getName() + "[" + containerName + "]: " + message);
             throwable.printStackTrace(System.out);
         }
 

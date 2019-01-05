@@ -110,8 +110,7 @@ public class GenericPrincipal implements Principal {
      * @param password Credentials used to authenticate this user
      * @param roles List of roles (must be Strings) possessed by this user
      */
-    public GenericPrincipal(Realm realm, String name, String password,
-                            List roles) {
+    public GenericPrincipal(Realm realm, String name, String password, List roles) {
 
         super();
         this.realm = realm;
@@ -120,8 +119,9 @@ public class GenericPrincipal implements Principal {
         if (roles != null) {
             this.roles = new String[roles.size()];
             this.roles = (String[]) roles.toArray(this.roles);
-            if (this.roles.length > 0)
+            if (this.roles.length > 0) {
                 Arrays.sort(this.roles);
+            }
         }
 
     }

@@ -88,10 +88,14 @@ import org.apache.catalina.util.LifecycleSupport;
  *
  * @author Craig R. McClanahan
  * @version $Revision: 1.9 $ $Date: 2002/08/28 17:08:58 $
+ *
+ *
+ * 将Session存储到辅助存储器中的基类
+ *
+ * 实现Runnable接口 为了新建一个线程执行备份和换出活动的Session对象的任务
  */
 
-public abstract class PersistentManagerBase
-    extends ManagerBase
+public abstract class PersistentManagerBase extends ManagerBase
     implements Lifecycle, PropertyChangeListener, Runnable {
 
 
@@ -338,8 +342,7 @@ public abstract class PersistentManagerBase
 
         // Register with the new Container (if any)
         if ((this.container != null) && (this.container instanceof Context)) {
-            setMaxInactiveInterval
-                ( ((Context) this.container).getSessionTimeout()*60 );
+            setMaxInactiveInterval(((Context) this.container).getSessionTimeout()*60);
             ((Context) this.container).addPropertyChangeListener(this);
         }
 
@@ -498,20 +501,6 @@ public abstract class PersistentManagerBase
 
 
     /**
-     * Called by the background thread after active sessions have
-     * been checked for expiration, to allow sessions to be
-     * swapped out, backed up, etc.
-     */
-    public void processPersistenceChecks() {
-
-            processMaxIdleSwaps();
-            processMaxActiveSwaps();
-            processMaxIdleBackups();
-
-    }
-
-
-    /**
      * Return a new session object as long as the number of active
      * sessions does not exceed <b>maxActiveSessions</b>. If there
      * aren't too many active sessions, or if there is no limit,
@@ -524,8 +513,7 @@ public abstract class PersistentManagerBase
 
         if ((maxActiveSessions >= 0) &&
           (sessions.size() >= maxActiveSessions))
-            throw new IllegalStateException
-                (sm.getString("standardManager.createSession.ise"));
+            throw new IllegalStateException(sm.getString("standardManager.createSession.ise"));
 
         return (super.createSession());
 
@@ -663,8 +651,7 @@ public abstract class PersistentManagerBase
             return;
 
         if (debug >= 1)
-            log(sm.getString("persistentManager.unloading",
-                             String.valueOf(n)));
+            log(sm.getString("persistentManager.unloading", String.valueOf(n)));
 
         for (int i = 0; i < n; i++)
             try {
@@ -696,15 +683,13 @@ public abstract class PersistentManagerBase
             session = store.load(id);
         } catch (ClassNotFoundException e) {
             log(sm.getString("persistentManager.deserializeError", id, e));
-            throw new IllegalStateException
-                (sm.getString("persistentManager.deserializeError", id, e));
+            throw new IllegalStateException(sm.getString("persistentManager.deserializeError", id, e));
         }
 
         if (session == null)
             return (null);
 
-        if (!session.isValid()
-                || isSessionStale(session, System.currentTimeMillis())) {
+        if (!session.isValid() || isSessionStale(session, System.currentTimeMillis())) {
             log("session swapped in is invalid or expired");
             session.expire();
             store.remove(id);
@@ -733,9 +718,7 @@ public abstract class PersistentManagerBase
      */
     protected void swapOut(Session session) throws IOException {
 
-        if (store == null ||
-                !session.isValid() ||
-                isSessionStale(session, System.currentTimeMillis()))
+        if (store == null || !session.isValid() || isSessionStale(session, System.currentTimeMillis()))
             return;
 
         ((StandardSession)session).passivate();
@@ -753,16 +736,13 @@ public abstract class PersistentManagerBase
      */
     protected void writeSession(Session session) throws IOException {
 
-        if (store == null ||
-                !session.isValid() ||
-                isSessionStale(session, System.currentTimeMillis()))
+        if (store == null || !session.isValid() || isSessionStale(session, System.currentTimeMillis()))
             return;
 
         try {
             store.save(session);
         } catch (IOException e) {
-            log(sm.getString
-                ("persistentManager.serializeError", session.getId(), e));
+            log(sm.getString("persistentManager.serializeError", session.getId(), e));
             throw e;
         }
 
@@ -822,8 +802,7 @@ public abstract class PersistentManagerBase
 
         // Validate and update our current component state
         if (started)
-            throw new LifecycleException
-                (sm.getString("standardManager.alreadyStarted"));
+            throw new LifecycleException(sm.getString("standardManager.alreadyStarted"));
         lifecycle.fireLifecycleEvent(START_EVENT, null);
         started = true;
 
@@ -860,8 +839,7 @@ public abstract class PersistentManagerBase
 
         // Validate and update our current component state
         if (!isStarted())
-            throw new LifecycleException
-                (sm.getString("standardManager.notStarted"));
+            throw new LifecycleException(sm.getString("standardManager.notStarted"));
         lifecycle.fireLifecycleEvent(STOP_EVENT, null);
         setStarted(false);
 
@@ -908,11 +886,9 @@ public abstract class PersistentManagerBase
         // Process a relevant property change
         if (event.getPropertyName().equals("sessionTimeout")) {
             try {
-                setMaxInactiveInterval
-                    ( ((Integer) event.getNewValue()).intValue()*60 );
+                setMaxInactiveInterval(((Integer) event.getNewValue()).intValue()*60);
             } catch (NumberFormatException e) {
-                log(sm.getString("standardManager.sessionTimeout",
-                                 event.getNewValue().toString()));
+                log(sm.getString("standardManager.sessionTimeout", event.getNewValue().toString()));
             }
         }
 
@@ -945,6 +921,8 @@ public abstract class PersistentManagerBase
 
     /**
      * Invalidate all sessions that have expired.
+     *
+     *  检测Session是否过期
      */
     protected void processExpires() {
 
@@ -961,6 +939,22 @@ public abstract class PersistentManagerBase
             if (isSessionStale(session, timeNow))
                 session.expire();
         }
+
+    }
+
+
+
+    /**
+     * Called by the background thread after active sessions have
+     * been checked for expiration, to allow sessions to be
+     * swapped out, backed up, etc.
+     */
+    public void processPersistenceChecks() {
+
+        processMaxIdleSwaps();
+        processMaxActiveSwaps();
+        // 负责对Session对象备份
+        processMaxIdleBackups();
 
     }
 
@@ -988,9 +982,7 @@ public abstract class PersistentManagerBase
                     (int) ((timeNow - session.getLastAccessedTime()) / 1000L);
                 if (timeIdle > maxIdleSwap && timeIdle > minIdleSwap) {
                     if (debug > 1)
-                        log(sm.getString
-                            ("persistentManager.swapMaxIdle",
-                             session.getId(), new Integer(timeIdle)));
+                        log(sm.getString("persistentManager.swapMaxIdle", session.getId(), new Integer(timeIdle)));
                     try {
                         swapOut(session);
                     } catch (IOException e) {
@@ -1018,9 +1010,7 @@ public abstract class PersistentManagerBase
             return;
 
         if(debug > 0)
-            log(sm.getString
-                ("persistentManager.tooManyActive",
-                 new Integer(sessions.length)));
+            log(sm.getString("persistentManager.tooManyActive", new Integer(sessions.length)));
 
         int toswap = sessions.length - getMaxActiveSessions();
         long timeNow = System.currentTimeMillis();
@@ -1030,9 +1020,7 @@ public abstract class PersistentManagerBase
                 (int) ((timeNow - sessions[i].getLastAccessedTime()) / 1000L);
             if (timeIdle > minIdleSwap) {
                 if(debug > 1)
-                    log(sm.getString
-                        ("persistentManager.swapTooManyActive",
-                         sessions[i].getId(), new Integer(timeIdle)));
+                    log(sm.getString("persistentManager.swapTooManyActive", sessions[i].getId(), new Integer(timeIdle)));
                 try {
                     swapOut(sessions[i]);
                 } catch (IOException e) {
@@ -1047,6 +1035,7 @@ public abstract class PersistentManagerBase
 
     /**
      * Back up idle sessions.
+     * 负责对Session对象备份
      */
     protected void processMaxIdleBackups() {
 
@@ -1066,9 +1055,7 @@ public abstract class PersistentManagerBase
                     (int) ((timeNow - session.getLastAccessedTime()) / 1000L);
                 if (timeIdle > maxIdleBackup) {
                     if (debug > 1)
-                        log(sm.getString
-                            ("persistentManager.backupMaxIdle",
-                            session.getId(), new Integer(timeIdle)));
+                        log(sm.getString("persistentManager.backupMaxIdle", session.getId(), new Integer(timeIdle)));
 
                     try {
                         writeSession(session);
@@ -1148,6 +1135,7 @@ public abstract class PersistentManagerBase
         // Loop until the termination semaphore is set
         while (!threadDone) {
             threadSleep();
+            // 检测Session是否过期
             processExpires();
             processPersistenceChecks();
         }

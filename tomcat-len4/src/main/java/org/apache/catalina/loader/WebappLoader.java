@@ -334,7 +334,7 @@ public class WebappLoader implements Lifecycle, Loader, PropertyChangeListener, 
 
         // Register with the new Container (if any)
         if ((this.container != null) && (this.container instanceof Context)) {
-            setReloadable( ((Context) this.container).getReloadable() );
+            setReloadable(((Context) this.container).getReloadable());
             ((Context) this.container).addPropertyChangeListener(this);
         }
 
@@ -475,6 +475,7 @@ public class WebappLoader implements Lifecycle, Loader, PropertyChangeListener, 
         if (!started) {
             return;
         }
+
         if (!oldReloadable && this.reloadable) {
             threadStart();
         } else if (oldReloadable && !this.reloadable) {
@@ -819,6 +820,7 @@ public class WebappLoader implements Lifecycle, Loader, PropertyChangeListener, 
 
     /**
      * Notify our Context that a reload is appropriate.
+     *
      */
     private void notifyContext() {
 

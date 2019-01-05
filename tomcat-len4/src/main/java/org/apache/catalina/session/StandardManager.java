@@ -102,10 +102,13 @@ import org.apache.catalina.util.LifecycleSupport;
  *
  * @author Craig R. McClanahan
  * @version $Revision: 1.19 $ $Date: 2002/06/09 02:19:43 $
+ *
+ * 将Session存储在内存中，但是当Catalina关闭时会将Session存储到文件中，启动时在加载到内存
+ *
+ * 实现Runnable 是因为起一个线程检测过期的Session
  */
 
-public class StandardManager
-    extends ManagerBase
+public class StandardManager extends ManagerBase
     implements Lifecycle, PropertyChangeListener, Runnable {
 
 
@@ -114,6 +117,8 @@ public class StandardManager
 
     /**
      * The interval (in seconds) between checks for expired sessions.
+     *
+     *  检测Session过期时间的周期  单位秒
      */
     private int checkInterval = 60;
 
@@ -216,16 +221,17 @@ public class StandardManager
     public void setContainer(Container container) {
 
         // De-register from the old Container (if any)
-        if ((this.container != null) && (this.container instanceof Context))
+        if ((this.container != null) && (this.container instanceof Context)) {
             ((Context) this.container).removePropertyChangeListener(this);
+        }
+
 
         // Default processing provided by our superclass
         super.setContainer(container);
 
         // Register with the new Container (if any)
         if ((this.container != null) && (this.container instanceof Context)) {
-            setMaxInactiveInterval
-                ( ((Context) this.container).getSessionTimeout()*60 );
+            setMaxInactiveInterval(((Context) this.container).getSessionTimeout()*60);
             ((Context) this.container).addPropertyChangeListener(this);
         }
 
@@ -738,6 +744,8 @@ public class StandardManager
 
     /**
      * Invalidate all sessions that have expired.
+     *
+     * 遍历所有的Session
      */
     private void processExpires() {
 
@@ -755,6 +763,7 @@ public class StandardManager
                 (int) ((timeNow - session.getLastAccessedTime()) / 1000L);
             if (timeIdle >= maxInactiveInterval) {
                 try {
+                    // 使过期的Session失效
                     session.expire();
                 } catch (Throwable t) {
                     log(sm.getString("standardManager.expireException"), t);

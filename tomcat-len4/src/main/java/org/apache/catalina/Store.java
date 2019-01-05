@@ -147,8 +147,7 @@ public interface Store {
      * @exception ClassNotFoundException if a deserialization error occurs
      * @exception IOException if an input/output error occurs
      */
-    public Session load(String id)
-        throws ClassNotFoundException, IOException;
+    public Session load(String id) throws ClassNotFoundException, IOException;
 
 
     /**

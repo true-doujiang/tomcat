@@ -172,6 +172,8 @@ public interface Session {
      * Set the Manager within which this Session is valid.
      *
      * @param manager The new Manager
+     *
+     *                与某个Session管理器相关联
      */
     public void setManager(Manager manager);
 

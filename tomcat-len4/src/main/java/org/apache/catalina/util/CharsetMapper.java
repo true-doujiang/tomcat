@@ -122,8 +122,7 @@ public class CharsetMapper {
     public CharsetMapper(String name) {
 
         try {
-            InputStream stream =
-              this.getClass().getResourceAsStream(name);
+            InputStream stream = this.getClass().getResourceAsStream(name);
             map.load(stream);
             stream.close();
         } catch (Throwable t) {

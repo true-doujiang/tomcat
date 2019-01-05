@@ -92,8 +92,7 @@ import org.apache.catalina.util.MD5Encoder;
  * @version $Revision: 1.12 $ $Date: 2002/06/09 02:19:43 $
  */
 
-public abstract class RealmBase
-    implements Lifecycle, Realm {
+public abstract class RealmBase implements Lifecycle, Realm {
 
 
     // ----------------------------------------------------- Instance Variables
@@ -123,8 +122,7 @@ public abstract class RealmBase
     /**
      * Descriptive information about this Realm implementation.
      */
-    protected static final String info =
-        "org.apache.catalina.realm.RealmBase/1.0";
+    protected static final String info = "org.apache.catalina.realm.RealmBase/1.0";
 
 
     /**
@@ -154,8 +152,7 @@ public abstract class RealmBase
     /**
      * The string manager for this package.
      */
-    protected static StringManager sm =
-        StringManager.getManager(Constants.Package);
+    protected static StringManager sm = StringManager.getManager(Constants.Package);
 
 
     /**
@@ -307,8 +304,7 @@ public abstract class RealmBase
 
         String serverCredentials = getPassword(username);
 
-        if ( (serverCredentials == null)
-             || (!serverCredentials.equals(credentials)) )
+        if ( (serverCredentials == null) || (!serverCredentials.equals(credentials)) )
             return null;
 
         return getPrincipal(username);
@@ -367,10 +363,8 @@ public abstract class RealmBase
         String md5a1 = getDigest(username, realm);
         if (md5a1 == null)
             return null;
-        String serverDigestValue = md5a1 + ":" + nOnce + ":" + nc + ":"
-            + cnonce + ":" + qop + ":" + md5a2;
-        String serverDigest =
-            md5Encoder.encode(md5Helper.digest(serverDigestValue.getBytes()));
+        String serverDigestValue = md5a1 + ":" + nOnce + ":" + nc + ":" + cnonce + ":" + qop + ":" + md5a2;
+        String serverDigest = md5Encoder.encode(md5Helper.digest(serverDigestValue.getBytes()));
         //System.out.println("Server digest : " + serverDigest);
 
         if (serverDigest.equals(clientDigest))
@@ -399,8 +393,7 @@ public abstract class RealmBase
         if (validate) {
             for (int i = 0; i < certs.length; i++) {
                 if (debug >= 2)
-                    log(" Checking validity for '" +
-                        certs[i].getSubjectDN().getName() + "'");
+                    log(" Checking validity for '" + certs[i].getSubjectDN().getName() + "'");
                 try {
                     certs[i].checkValidity();
                 } catch (Exception e) {
@@ -430,12 +423,13 @@ public abstract class RealmBase
      */
     public boolean hasRole(Principal principal, String role) {
 
-        if ((principal == null) || (role == null) ||
-            !(principal instanceof GenericPrincipal))
+        if ((principal == null) || (role == null) || !(principal instanceof GenericPrincipal))
             return (false);
+
         GenericPrincipal gp = (GenericPrincipal) principal;
         if (!(gp.getRealm() == this))
             return (false);
+
         boolean result = gp.hasRole(role);
         if (debug >= 2) {
             String name = principal.getName();
@@ -512,8 +506,7 @@ public abstract class RealmBase
 
         // Validate and update our current component state
         if (started)
-            throw new LifecycleException
-                (sm.getString("realmBase.alreadyStarted"));
+            throw new LifecycleException(sm.getString("realmBase.alreadyStarted"));
         lifecycle.fireLifecycleEvent(START_EVENT, null);
         started = true;
 
@@ -522,8 +515,7 @@ public abstract class RealmBase
             try {
                 md = MessageDigest.getInstance(digest);
             } catch (NoSuchAlgorithmException e) {
-                throw new LifecycleException
-                    (sm.getString("realmBase.algorithm", digest), e);
+                throw new LifecycleException(sm.getString("realmBase.algorithm", digest), e);
             }
         }
 
@@ -539,13 +531,11 @@ public abstract class RealmBase
      * @exception LifecycleException if this component detects a fatal error
      *  that needs to be reported
      */
-    public void stop()
-        throws LifecycleException {
+    public void stop() throws LifecycleException {
 
         // Validate and update our current component state
         if (!started)
-            throw new LifecycleException
-                (sm.getString("realmBase.notStarted"));
+            throw new LifecycleException(sm.getString("realmBase.notStarted"));
         lifecycle.fireLifecycleEvent(STOP_EVENT, null);
         started = false;
 
@@ -606,10 +596,8 @@ public abstract class RealmBase
                 throw new IllegalStateException();
             }
         }
-        String digestValue = username + ":" + realmName + ":"
-            + getPassword(username);
-        byte[] digest =
-            md5Helper.digest(digestValue.getBytes());
+        String digestValue = username + ":" + realmName + ":" + getPassword(username);
+        byte[] digest = md5Helper.digest(digestValue.getBytes());
         return md5Encoder.encode(digest);
     }
 
@@ -696,8 +684,7 @@ public abstract class RealmBase
 
         try {
             // Obtain a new message digest with "digest" encryption
-            MessageDigest md =
-                (MessageDigest) MessageDigest.getInstance(algorithm).clone();
+            MessageDigest md = (MessageDigest) MessageDigest.getInstance(algorithm).clone();
             // encode the credentials
             md.update(credentials.getBytes());
             // Digest the credentials and return as hexadecimal
@@ -723,8 +710,7 @@ public abstract class RealmBase
                 System.out.println(Digest(args[i], args[1]));
             }
         } else {
-            System.out.println
-                ("Usage: RealmBase -a <algorithm> <credentials>");
+            System.out.println("Usage: RealmBase -a <algorithm> <credentials>");
         }
 
     }

@@ -579,8 +579,7 @@ public class StandardContext extends ContainerBase
         if (this.charsetMapper == null) {
             try {
                 Class clazz = Class.forName(charsetMapperClass);
-                this.charsetMapper =
-                  (CharsetMapper) clazz.newInstance();
+                this.charsetMapper = (CharsetMapper) clazz.newInstance();
             } catch (Throwable t) {
                 this.charsetMapper = new CharsetMapper();
             }
@@ -3347,6 +3346,7 @@ public class StandardContext extends ContainerBase
 
         if (debug >= 1)
             log("Processing start(), current available=" + getAvailable());
+
         setAvailable(false);
         setConfigured(false);
         boolean ok = true;
@@ -3356,15 +3356,17 @@ public class StandardContext extends ContainerBase
             if (debug >= 1)
                 log("Configuring default Resources");
             try {
-                if ((docBase != null) && (docBase.endsWith(".war")))
+                if ((docBase != null) && (docBase.endsWith(".war"))) {
                     setResources(new WARDirContext());
-                else
+                } else {
                     setResources(new FileDirContext());
+                }
             } catch (IllegalArgumentException e) {
                 log("Error initializing resources: " + e.getMessage());
                 ok = false;
             }
         }
+
         if (ok && (resources instanceof ProxyDirContext)) {
             DirContext dirContext = ((ProxyDirContext) resources).getDirContext();
             if ((dirContext != null) && (dirContext instanceof BaseDirContext)) {
@@ -3481,8 +3483,7 @@ public class StandardContext extends ContainerBase
 
         // We put the resources into the servlet context
         if (ok)
-            getServletContext().setAttribute
-                (Globals.RESOURCES_ATTR, getResources());
+            getServletContext().setAttribute(Globals.RESOURCES_ATTR, getResources());
 
         // Binding thread
         oldCCL = bindThread();
@@ -3541,8 +3542,7 @@ public class StandardContext extends ContainerBase
 
         // Validate and update our current component state
         if (!started)
-            throw new LifecycleException
-                (sm.getString("containerBase.notStarted", logName()));
+            throw new LifecycleException(sm.getString("containerBase.notStarted", logName()));
 
         if (debug >= 1)
             log("Stopping");
@@ -3602,16 +3602,14 @@ public class StandardContext extends ContainerBase
                 if (resources instanceof Lifecycle) {
                     ((Lifecycle) resources).stop();
                 } else if (resources instanceof ProxyDirContext) {
-                    DirContext dirContext =
-                        ((ProxyDirContext) resources).getDirContext();
+                    DirContext dirContext = ((ProxyDirContext) resources).getDirContext();
                     if (dirContext != null) {
                         if (debug >= 1) {
                             log("Releasing document base " + docBase);
                         }
                         if (dirContext instanceof BaseDirContext) {
                             ((BaseDirContext) dirContext).release();
-                            if ((dirContext instanceof WARDirContext)
-                                || (dirContext instanceof FileDirContext)) {
+                            if ((dirContext instanceof WARDirContext) || (dirContext instanceof FileDirContext)) {
                                 resources = null;
                             }
                         } else {
@@ -3634,7 +3632,6 @@ public class StandardContext extends ContainerBase
             }
 
         } finally {
-
             // Unbinding thread
             unbindThread(oldCCL);
 
@@ -3702,8 +3699,7 @@ public class StandardContext extends ContainerBase
             return (urlPattern);
         if (!isServlet22())
             return (urlPattern);
-        log(sm.getString("standardContext.urlPattern.patternWarning",
-                         urlPattern));
+        log(sm.getString("standardContext.urlPattern.patternWarning", urlPattern));
         return ("/" + urlPattern);
 
     }
@@ -3747,14 +3743,12 @@ public class StandardContext extends ContainerBase
      */
     private ClassLoader bindThread() {
 
-        ClassLoader oldContextClassLoader =
-            Thread.currentThread().getContextClassLoader();
+        ClassLoader oldContextClassLoader = Thread.currentThread().getContextClassLoader();
 
         if (getResources() == null)
             return oldContextClassLoader;
 
-        Thread.currentThread().setContextClassLoader
-            (getLoader().getClassLoader());
+        Thread.currentThread().setContextClassLoader(getLoader().getClassLoader());
 
         DirContextURLStreamHandler.bind(getResources());
 
@@ -3863,8 +3857,7 @@ public class StandardContext extends ContainerBase
      */
     private void postResources() {
 
-        getServletContext().setAttribute
-            (Globals.RESOURCES_ATTR, getResources());
+        getServletContext().setAttribute(Globals.RESOURCES_ATTR, getResources());
 
     }
 
@@ -3875,8 +3868,7 @@ public class StandardContext extends ContainerBase
      */
     private void postWelcomeFiles() {
 
-        getServletContext().setAttribute("org.apache.catalina.WELCOME_FILES",
-                                         welcomeFiles);
+        getServletContext().setAttribute("org.apache.catalina.WELCOME_FILES", welcomeFiles);
 
     }
 
@@ -3920,8 +3912,7 @@ public class StandardContext extends ContainerBase
             if (hostWorkDir != null ) {
                 workDir = hostWorkDir + File.separator + temp;
             } else {
-                workDir = "work" + File.separator + engineName +
-                    File.separator + hostName + File.separator + temp;
+                workDir = "work" + File.separator + engineName + File.separator + hostName + File.separator + temp;
             }
             setWorkDir(workDir);
         }
@@ -3942,8 +3933,7 @@ public class StandardContext extends ContainerBase
         // Set the appropriate servlet context attribute
         getServletContext().setAttribute(Globals.WORK_DIR_ATTR, dir);
         if (getServletContext() instanceof ApplicationContext)
-            ((ApplicationContext) getServletContext()).setAttributeReadOnly
-                (Globals.WORK_DIR_ATTR);
+            ((ApplicationContext) getServletContext()).setAttributeReadOnly(Globals.WORK_DIR_ATTR);
 
     }
 

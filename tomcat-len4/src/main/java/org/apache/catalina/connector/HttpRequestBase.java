@@ -44,8 +44,7 @@ import org.apache.catalina.util.RequestUtil;
  * @dep//recated
  */
 
-public class HttpRequestBase extends RequestBase
-    implements HttpRequest, HttpServletRequest {
+public class HttpRequestBase extends RequestBase implements HttpRequest, HttpServletRequest {
 
 
     protected class PrivilegedGetSession implements PrivilegedAction {
@@ -1115,8 +1114,7 @@ public class HttpRequestBase extends RequestBase
         if ((context != null) && (response != null) &&
             context.getCookies() &&
             response.getResponse().isCommitted()) {
-            throw new IllegalStateException
-              (sm.getString("httpRequestBase.createCommitted"));
+            throw new IllegalStateException(sm.getString("httpRequestBase.createCommitted"));
         }
 
         session = manager.createSession();
@@ -1252,27 +1250,5 @@ public class HttpRequestBase extends RequestBase
     }
 
 
-	public String getLocalAddr() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	public String getLocalName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	public int getLocalPort() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-
-	public int getRemotePort() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
 
 }

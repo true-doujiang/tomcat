@@ -172,6 +172,8 @@ public class WebappClassLoader extends URLClassLoader implements Reloader, Lifec
      * components that have been integrated into the JDK for later versions,
      * but where the corresponding JAR files are required to run on
      * earlier versions.
+     *
+     *
      */
     private static final String[] triggers = {
         "javax.servlet.Servlet"                     // Servlet API
@@ -181,6 +183,8 @@ public class WebappClassLoader extends URLClassLoader implements Reloader, Lifec
     /**
      * Set of package names which are not allowed to be loaded from a webapp
      * class loader without delegating first.
+     *
+     *
      */
     private static final String[] packageTriggers = {
         "javax",                                     // Java extensions
@@ -214,12 +218,16 @@ public class WebappClassLoader extends URLClassLoader implements Reloader, Lifec
     /**
      * The cache of ResourceEntry for classes and resources we have loaded,
      * keyed by resource name.
+     *
+     *
      */
     protected HashMap resourceEntries = new HashMap();
 
 
     /**
      * The list of not found resources.
+     *
+     *
      */
     protected HashMap notFoundResources = new HashMap();
 

@@ -1194,11 +1194,6 @@ public class HttpResponseBase extends ResponseBase
     }
 
 
-	public void setCharacterEncoding(String arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
 
 }
 

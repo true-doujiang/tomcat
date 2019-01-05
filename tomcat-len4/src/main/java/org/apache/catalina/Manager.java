@@ -87,8 +87,9 @@ import java.io.IOException;
  *
  * @author Craig R. McClanahan
  * @version $Revision: 1.6 $ $Date: 2002/09/19 22:55:47 $
+ *
+ *   Session管理器
  */
-
 public interface Manager {
 
 
@@ -172,6 +173,8 @@ public interface Manager {
      * Add this Session to the set of active Sessions for this Manager.
      *
      * @param session Session to be added
+     *
+     *
      */
     public void add(Session session);
 

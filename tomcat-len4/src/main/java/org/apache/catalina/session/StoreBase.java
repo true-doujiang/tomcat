@@ -85,8 +85,7 @@ import org.apache.catalina.util.StringManager;
  * @version $Revision: 1.6 $, $Date: 2002/08/28 17:08:58 $
  */
 
-public abstract class StoreBase
-    implements Lifecycle, Runnable, Store {
+public abstract class StoreBase implements Lifecycle, Runnable, Store {
 
     // ----------------------------------------------------- Instance Variables
 
@@ -344,14 +343,13 @@ public abstract class StoreBase
             logger = container.getLogger();
 
         if (logger != null) {
-            logger.log(getStoreName()+"[" + container.getName() + "]: "
-                       + message);
+            logger.log(getStoreName()+"[" + container.getName() + "]: " + message);
         } else {
             String containerName = null;
             if (container != null)
                 containerName = container.getName();
-            System.out.println(getStoreName()+"[" + containerName
-                               + "]: " + message);
+
+            System.out.println(getStoreName()+"[" + containerName + "]: " + message);
         }
     }
 
@@ -379,8 +377,7 @@ public abstract class StoreBase
     public void start() throws LifecycleException {
         // Validate and update our current component state
         if (started)
-            throw new LifecycleException
-                (sm.getString(getStoreName()+".alreadyStarted"));
+            throw new LifecycleException(sm.getString(getStoreName()+".alreadyStarted"));
         lifecycle.fireLifecycleEvent(START_EVENT, null);
         started = true;
 
@@ -399,8 +396,7 @@ public abstract class StoreBase
     public void stop() throws LifecycleException {
         // Validate and update our current component state
         if (!started)
-            throw new LifecycleException
-                (sm.getString(getStoreName()+".notStarted"));
+            throw new LifecycleException(sm.getString(getStoreName()+".notStarted"));
         lifecycle.fireLifecycleEvent(STOP_EVENT, null);
         started = false;
 

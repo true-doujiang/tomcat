@@ -76,14 +76,23 @@ import javax.servlet.http.HttpSessionContext;
  *
  * @author Remy Maucherat
  * @version $Revision: 1.1 $ $Date: 2001/05/14 04:07:55 $
+ *
+ *  把Session外观类传给Servlet程实例
+ *  外观类也只实现了HttpSession接口中的方法
  */
+public class StandardSessionFacade implements HttpSession {
 
-public class StandardSessionFacade
-    implements HttpSession {
+
+    // ----------------------------------------------------- Instance Variables
+
+    /**
+     * Wrapped session object.
+     */
+    private HttpSession session = null;
+
 
 
     // ----------------------------------------------------------- Constructors
-
 
     /**
      * Construct a new session facade.
@@ -101,15 +110,6 @@ public class StandardSessionFacade
         super();
         this.session = session;
     }
-
-
-    // ----------------------------------------------------- Instance Variables
-
-
-    /**
-     * Wrapped session object.
-     */
-    private HttpSession session = null;
 
 
     // ---------------------------------------------------- HttpSession Methods

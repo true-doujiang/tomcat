@@ -106,11 +106,15 @@ public final class DistributedManager extends PersistentManagerBase {
 
     /**
      * Our ClusterSender, used when replicating sessions
+     *
+     * 向集群中的其它节点发送消息
      */
     private ClusterSender clusterSender = null;
 
     /**
      * Our ClusterReceiver
+     *
+     * 接收集群中的其它节点的送消息
      */
     private ClusterReceiver clusterReceiver = null;
 
@@ -161,6 +165,7 @@ public final class DistributedManager extends PersistentManagerBase {
 
             if(debug > 0)
                 log("Replicating Session: "+session.getId());
+
         } catch (IOException e) {
             log("An error occurred when replicating Session: "+session.getId());
         }
@@ -216,8 +221,7 @@ public final class DistributedManager extends PersistentManagerBase {
                     classLoader = loader.getClassLoader();
 
                 if (classLoader != null)
-                    ois = new CustomObjectInputStream(bis,
-                                                      classLoader);
+                    ois = new CustomObjectInputStream(bis, classLoader);
                 else
                     ois = new ObjectInputStream(bis);
 
@@ -227,6 +231,7 @@ public final class DistributedManager extends PersistentManagerBase {
 
                 if (debug > 0)
                     log("Loading replicated session: "+_session.getId());
+
             } catch (IOException e) {
                 log("Error occurred when trying to read replicated session: "+
                     e.toString());

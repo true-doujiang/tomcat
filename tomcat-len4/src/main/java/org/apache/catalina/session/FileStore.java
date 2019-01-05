@@ -94,8 +94,7 @@ import org.apache.catalina.util.CustomObjectInputStream;
  * @version $Revision: 1.7 $ $Date: 2002/03/18 18:56:21 $
  */
 
-public final class FileStore
-    extends StoreBase implements Store {
+public final class FileStore extends StoreBase implements Store {
 
 
     // ----------------------------------------------------- Constants
@@ -163,8 +162,7 @@ public final class FileStore
         String oldDirectory = this.directory;
         this.directory = path;
         this.directoryFile = null;
-        support.firePropertyChange("directory", oldDirectory,
-                                   this.directory);
+        support.firePropertyChange("directory", oldDirectory, this.directory);
 
     }
 
@@ -229,8 +227,7 @@ public final class FileStore
      *
      * @exception IOException if an input/output error occurs
      */
-    public void clear()
-        throws IOException {
+    public void clear() throws IOException {
 
         String[] keys = keys();
         for (int i = 0; i < keys.length; i++) {
@@ -278,9 +275,9 @@ public final class FileStore
      *
      * @exception ClassNotFoundException if a deserialization error occurs
      * @exception IOException if an input/output error occurs
+     *
      */
-    public Session load(String id)
-        throws ClassNotFoundException, IOException {
+    public Session load(String id) throws ClassNotFoundException, IOException {
 
         // Open an input stream to the specified pathname, if any
         File file = file(id);
@@ -288,8 +285,7 @@ public final class FileStore
             return (null);
         }
         if (debug >= 1) {
-            log(sm.getString(getStoreName()+".loading",
-                             id, file.getAbsolutePath()));
+            log(sm.getString(getStoreName()+".loading", id, file.getAbsolutePath()));
         }
 
         FileInputStream fis = null;
@@ -300,7 +296,9 @@ public final class FileStore
             fis = new FileInputStream(file.getAbsolutePath());
             BufferedInputStream bis = new BufferedInputStream(fis);
             Container container = manager.getContainer();
-            if (container != null)
+            if (container != null) {
+
+            }
                 loader = container.getLoader();
             if (loader != null)
                 classLoader = loader.getClassLoader();
@@ -325,8 +323,7 @@ public final class FileStore
         }
 
         try {
-            StandardSession session =
-                (StandardSession) manager.createSession();
+            StandardSession session = (StandardSession) manager.createSession();
             session.readObjectData(ois);
             session.setManager(manager);
             return (session);
@@ -359,8 +356,7 @@ public final class FileStore
             return;
         }
         if (debug >= 1) {
-            log(sm.getString(getStoreName()+".removing",
-                             id, file.getAbsolutePath()));
+            log(sm.getString(getStoreName()+".removing", id, file.getAbsolutePath()));
         }
         file.delete();
 
@@ -383,8 +379,7 @@ public final class FileStore
             return;
         }
         if (debug >= 1) {
-            log(sm.getString(getStoreName()+".saving",
-                             session.getId(), file.getAbsolutePath()));
+            log(sm.getString(getStoreName()+".saving", session.getId(), file.getAbsolutePath()));
         }
         FileOutputStream fos = null;
         ObjectOutputStream oos = null;
@@ -432,14 +427,11 @@ public final class FileStore
         if (!file.isAbsolute()) {
             Container container = manager.getContainer();
             if (container instanceof Context) {
-                ServletContext servletContext =
-                    ((Context) container).getServletContext();
-                File work = (File)
-                    servletContext.getAttribute(Globals.WORK_DIR_ATTR);
+                ServletContext servletContext = ((Context) container).getServletContext();
+                File work = (File) servletContext.getAttribute(Globals.WORK_DIR_ATTR);
                 file = new File(work, this.directory);
             } else {
-                throw new IllegalArgumentException
-                    ("Parent Container is not a Context");
+                throw new IllegalArgumentException("Parent Container is not a Context");
             }
         }
         if (!file.exists() || !file.isDirectory()) {
