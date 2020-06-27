@@ -34,17 +34,18 @@ public class HttpConnector implements Runnable {
         while (!stopped) {
             Socket socket = null;
             try {
+            	System.out.println(Thread.currentThread().getName() + " serverSocket accept() 准备就绪");
+            	// 业务处理也是用的这个线程  所以一次只能处理一个请求
                 socket = serverSocket.accept();
             } catch (Exception e) {
                 continue;
             }
+            
             count++;
             System.out.println(Thread.currentThread().getName() + " 新客户端接入: socket" + count + " = " + socket);
             
-            /**
-             * 每次HttpConnector实例只有一个HttpProcessor实例可以使用，所以每次他只能处理一个HTTP请求
-             */
-            // 创建Request和Response对象          本应用中this并没有用到
+            
+            // 每个请求都有一个HttpProcessor  创建Request和Response对象          本应用中this并没有用到  
             HttpProcessor processor = new HttpProcessor(this);
             processor.process(socket, count);
         }

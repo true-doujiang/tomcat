@@ -9,7 +9,10 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
 
-
+/**
+ * ServletRequest javax.servlet-api.jar
+ *
+ */
 public class Request implements ServletRequest {
 
     private InputStream input;
@@ -32,10 +35,12 @@ public class Request implements ServletRequest {
         for (int j = 0; j < i; j++) {
             request.append((char) buffer[j]);
         }
+        
         System.out.print(Thread.currentThread().getName()
                 + " 解析请求------开始----\n"
                 + request.toString());
         System.out.println(" \n解析请求-----end----\n\n");
+        
         uri = parseUri(request.toString());
     }
 

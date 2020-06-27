@@ -3,14 +3,10 @@ package ex03.pyrmont.connector.http;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
-
-import org.apache.catalina.util.ParameterMap;
 import org.apache.catalina.util.RequestUtil;
 import org.apache.catalina.util.StringManager;
-
 import ex03.pyrmont.ServletProcessor;
 import ex03.pyrmont.StaticResourceProcessor;
 
@@ -18,7 +14,7 @@ import ex03.pyrmont.StaticResourceProcessor;
 /**
  * 作者: 尤欢欢
  * 日期： 2018年8月12日 下午1:06:13
- * 描述： 负责创建Request和Response对象
+ * 描述： 每个请求都有一个 HttpProcessor  负责创建Request和Response对象
  */
 public class HttpProcessor {
 
@@ -28,7 +24,7 @@ public class HttpProcessor {
      */
     private HttpConnector connector = null;
 
-    //
+    // 请求行信息    GET /myapp/ModernServlet?username=aa HTTP/1.1
     private HttpRequestLine requestLine = new HttpRequestLine();
     private HttpRequest request;
     private HttpResponse response;
@@ -63,14 +59,14 @@ public class HttpProcessor {
 
             //创建Request和Response对象
             request = new HttpRequest(input);
+
             response = new HttpResponse(output);
-            
             response.setRequest(request);
-            //设置响应头
+            //设置响应头   是放进去了，但是HttpServletResponse版本太低没有提供getHeader()方法，所以用户代码中拿不到这俩个header
             response.setHeader("Server", "Pyrmont Servlet Container");
             response.setHeader("Content-Type", "text/html");
             
-            /*
+            /**
              * （解析第一行内容 和请求头信息）  GET /myapp/ModernServlet?username=aa HTTP/1.1
              * 
              * 解析HTTP请求中的请求行和请求头信息，并将其填充到HttpRequest对象成员变量中
@@ -80,6 +76,7 @@ public class HttpProcessor {
             //解析请求头信息 cookie,并将其填充到HttpRequest对象成员变量中
             parseHeaders(input);
 
+            // 核心模块处理
             if (request.getRequestURI().startsWith("/servlet/")) {
             	System.out.println(Thread.currentThread().getName() + " 处理Servlet请求  request = " + request + "   response = " + response);
 
@@ -95,6 +92,7 @@ public class HttpProcessor {
             System.out.println(Thread.currentThread().getName() + " 关闭 socket" + count + " " + socket);
             System.out.println();
             socket.close();
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -164,6 +162,7 @@ public class HttpProcessor {
         String match = ";jsessionid=";
         int semicolon = uri.indexOf(match);
         if (semicolon >= 0) {
+        	// 说明cookie被禁用 session放在url后面了
             String rest = uri.substring(semicolon + match.length());
             int semicolon2 = rest.indexOf(';');
             if (semicolon2 >= 0) {
@@ -236,17 +235,18 @@ public class HttpProcessor {
             String name = new String(header.name, 0, header.nameEnd);
             String value = new String(header.value, 0, header.valueEnd);
             System.out.println(Thread.currentThread().getName() + " httpProcessor.parseHeaders --> " + name + "  = " + value);
+            
             //存入request中
             request.addHeader(name, value);
             
             // do something for some headers, ignore others.
             if (name.equals("cookie")) {
-                //解析Cookie
+                //解析Cookie 
                 Cookie cookies[] = RequestUtil.parseCookieHeader(value);
                 
                 for (int i = 0; i < cookies.length; i++) {
                     if (cookies[i].getName().equals("jsessionid")) {
-                        // Override anything requested in the URL
+                        // Override anything requested in the URL 
                         if (!request.isRequestedSessionIdFromCookie()) {
                             // Accept only the first session id cookie
                             request.setRequestedSessionId(cookies[i].getValue());

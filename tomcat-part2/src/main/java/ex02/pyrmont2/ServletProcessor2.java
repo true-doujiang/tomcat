@@ -53,7 +53,7 @@ public class ServletProcessor2 {
             /**
              * 执行Servlet
              *
-             * 传进俩个包装类
+             * 传进俩个包装类, 但是我用反射照耀可以拿到request，response
              */
             servlet.service((ServletRequest) requestFacade, (ServletResponse) responseFacade);
 

@@ -344,14 +344,17 @@ public class HttpResponse implements HttpServletResponse {
     /**
      * implementation of HttpServletResponse
      */
-    //
     public PrintWriter getWriter() throws IOException {
+    	
         ResponseStream newStream = new ResponseStream(this);
+        
         //设置为true   就不需要ServletProcessor -> ((HttpResponse) response).finishResponse();
         newStream.setCommit(false);
         OutputStreamWriter osr = new OutputStreamWriter(newStream, getCharacterEncoding());
         writer = new ResponseWriter(osr);
+        
         System.out.println(Thread.currentThread().getName() + " Response.getWriter() writer=" + writer);
+        
         return writer;
     }
 

@@ -43,6 +43,7 @@ public class HttpRequest implements HttpServletRequest {
 
     //HttpProcess.parseHeader中设置的
     private String contentType;
+    //
     private int contentLength;
 
     private InetAddress inetAddress;
@@ -52,6 +53,7 @@ public class HttpRequest implements HttpServletRequest {
 
     private String method;
     private String protocol;
+    // 参数： ?name=yhh&age=18
     private String queryString;
     private String requestURI;
 
@@ -66,6 +68,7 @@ public class HttpRequest implements HttpServletRequest {
     private boolean requestedSessionURL;
 
     protected HashMap attributes = new HashMap();
+    //
     protected String authorization = null;
     protected String contextPath = "";
 
@@ -79,7 +82,9 @@ public class HttpRequest implements HttpServletRequest {
     //继承自HashMap其中其中有一个locked 布尔变量，只有当为false才可以添加、删除、修改，否则抛出异常
     //读取可以发生任何时候
     protected ParameterMap parameters = null;
+    //
     protected ArrayList cookies = new ArrayList();
+    //{host=[localhost:8080], connection=[Close], content-type=[text/plain]}
     protected HashMap headers = new HashMap();
 
     /**
@@ -151,6 +156,7 @@ public class HttpRequest implements HttpServletRequest {
         // Parse any parameters specified in the query string
         String queryString = getQueryString();
         try {
+        	//
             RequestUtil.parseParameters(results, queryString, encoding);
         } catch (UnsupportedEncodingException e) {
             ;
@@ -169,7 +175,9 @@ public class HttpRequest implements HttpServletRequest {
         }
 
         // 若为POST 请求方式  请求体中的参数
-        if ("POST".equals(getMethod()) && (getContentLength() > 0) && "application/x-www-form-urlencoded".equals(contentType)) {
+        if ("POST".equals(getMethod()) && (getContentLength() > 0) 
+        		&& "application/x-www-form-urlencoded".equals(contentType)) {
+        	
             try {
                 int max = getContentLength();
                 int len = 0;
@@ -200,7 +208,12 @@ public class HttpRequest implements HttpServletRequest {
         parameters = results;
     }
 
-    
+    /**
+     * parseHeaders()调用
+     * 
+     * @param name
+     * @param value
+     */
     public void addHeader(String name, String value) {
         name = name.toLowerCase();
         synchronized (headers) {
@@ -213,7 +226,11 @@ public class HttpRequest implements HttpServletRequest {
         }
     }
 
-    
+    /**
+     * parseHeaders()调用
+     *  
+     * @param cookie
+     */
     public void addCookie(Cookie cookie) {
         synchronized (cookies) {
             cookies.add(cookie);
@@ -236,10 +253,18 @@ public class HttpRequest implements HttpServletRequest {
         return input;
     }
 
+    /**
+     * parseHeaders()调用
+     * @param length
+     */
     public void setContentLength(int length) {
         this.contentLength = length;
     }
 
+    /**
+     * parseHeaders()调用 
+     * @param type
+     */
     public void setContentType(String type) {
         this.contentType = type;
     }

@@ -11,11 +11,19 @@ import java.util.Locale;
 import javax.servlet.ServletResponse;
 import javax.servlet.ServletOutputStream;
 
+/**
+ * ServletResponse javax.servlet-api.jar
+ *
+ */
 public class Response implements ServletResponse {
 
     private static final int BUFFER_SIZE = 1024;
+    
     Request request;
+    
+    // socket.getOutputStream()
     OutputStream output;
+    // 
     PrintWriter writer;
 
     public Response(OutputStream output) {
@@ -26,6 +34,11 @@ public class Response implements ServletResponse {
         this.request = request;
     }
 
+    /**
+     * 静态资源请求处理
+     * 
+     * @throws IOException
+     */
     public void sendStaticResource() throws IOException {
         FileInputStream fis = null;
         try {
@@ -35,9 +48,10 @@ public class Response implements ServletResponse {
             int len = fis.available();
             byte[] bytes = new byte[len];
             int ch = fis.read(bytes, 0, len);
-            String headers = "HTTP/1.1 200 OK\r\n"
+            String headers = 
+            		  "HTTP/1.1 200 OK\r\n"
                     + "Content-Type: text/html\r\n"
-                    + "Content-Length: 23\r\n"
+                    + "Content-Length: " + len + "\r\n"
                     + "\r\n";
 
             if (ch != -1) {
@@ -47,13 +61,16 @@ public class Response implements ServletResponse {
                 System.out.println(Thread.currentThread().getName() + " response:\n" + new String(bytes, 0, bytes.length));
             }
         } catch (FileNotFoundException e) {
-            String errorMessage = "HTTP/1.1 404 File Not Found\r\n"
+            String errorMessage = 
+            		  "HTTP/1.1 404 File Not Found\r\n"
                     + "Content-Type: text/html\r\n"
                     + "Content-Length: 23\r\n"
                     + "\r\n"
                     + "<h1>File Not Found</h1>";
+            
             System.out.println(Thread.currentThread().getName() + " response:\n" + errorMessage);
             output.write(errorMessage.getBytes());
+            
         } finally {
             if (fis != null){
                 fis.close();
@@ -70,6 +87,7 @@ public class Response implements ServletResponse {
         // autoflush is true, println() will flush,
         // but print() will not.
         writer = new PrintWriter(output, true);
+        
         System.out.println(Thread.currentThread().getName() + " Response.getWriter() writer=" + writer);
         return writer;
     }

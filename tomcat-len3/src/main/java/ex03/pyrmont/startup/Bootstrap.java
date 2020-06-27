@@ -20,7 +20,7 @@ import ex03.pyrmont.connector.http.HttpConnector;
 public final class Bootstrap {
 
 	//java compiler 1.4  本工程用的1.4的编译器
-	
+	//少jar包 源目录汇总的lib下jar导入就OK了
 	
 	// servlet/PrimitiveServlet
     public static void main(String[] args) {

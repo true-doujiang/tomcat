@@ -1,6 +1,5 @@
 package ex02.pyrmont2;
 
-import javax.servlet.ServletInputStream;
 import java.io.File;
 
 public class Constants {

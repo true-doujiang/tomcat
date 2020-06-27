@@ -158,8 +158,7 @@ public class SocketInputStream extends InputStream {
             if (readCount >= maxRead) {
                 if ((2 * maxRead) <= HttpRequestLine.MAX_METHOD_SIZE) {
                     char[] newBuffer = new char[2 * maxRead];
-                    System.arraycopy(requestLine.method, 0, newBuffer, 0,
-                                     maxRead);
+                    System.arraycopy(requestLine.method, 0, newBuffer, 0, maxRead);
                     requestLine.method = newBuffer;
                     maxRead = requestLine.method.length;
                 } else {

@@ -7,6 +7,13 @@ import java.util.Locale;
 import javax.servlet.ServletResponse;
 import javax.servlet.ServletOutputStream;
 
+/**
+ * 
+ * @author -小野猪-
+ * 
+ * resp包装类
+ *
+ */
 public class ResponseFacade implements ServletResponse {
 
     private ServletResponse response;

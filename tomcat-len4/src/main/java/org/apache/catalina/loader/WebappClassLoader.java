@@ -825,10 +825,10 @@ public class WebappClassLoader extends URLClassLoader implements Reloader, Lifec
         if (getJarPath() != null) {
 
             try {
-                NamingEnumeration enum = resources.listBindings(getJarPath());
+                NamingEnumeration enum2 = resources.listBindings(getJarPath());
                 int i = 0;
-                while (enum.hasMoreElements() && (i < length)) {
-                    NameClassPair ncPair = (NameClassPair) enum.nextElement();
+                while (enum2.hasMoreElements() && (i < length)) {
+                    NameClassPair ncPair = (NameClassPair) enum2.nextElement();
                     String name = ncPair.getName();
                     // Ignore non JARs present in the lib folder
                     if (!name.endsWith(".jar"))
@@ -841,10 +841,10 @@ public class WebappClassLoader extends URLClassLoader implements Reloader, Lifec
                     }
                     i++;
                 }
-                if (enum.hasMoreElements()) {
-                    while (enum.hasMoreElements()) {
+                if (enum2.hasMoreElements()) {
+                    while (enum2.hasMoreElements()) {
                         NameClassPair ncPair =
-                            (NameClassPair) enum.nextElement();
+                            (NameClassPair) enum2.nextElement();
                         String name = ncPair.getName();
                         // Additional non-JAR files are allowed
                         if (name.endsWith(".jar")) {

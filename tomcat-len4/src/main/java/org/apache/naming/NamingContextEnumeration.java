@@ -85,12 +85,12 @@ public class NamingContextEnumeration
 
 
     public NamingContextEnumeration(Vector entries) {
-        enum = entries.elements();
+        enum2 = entries.elements();
     }
 
 
-    public NamingContextEnumeration(Enumeration enum) {
-        this.enum = enum;
+    public NamingContextEnumeration(Enumeration enum2) {
+        this.enum2 = enum2;
     }
 
 
@@ -100,7 +100,7 @@ public class NamingContextEnumeration
     /**
      * Underlying enumeration.
      */
-    protected Enumeration enum;
+    protected Enumeration enum2;
 
 
     // --------------------------------------------------------- Public Methods
@@ -120,7 +120,7 @@ public class NamingContextEnumeration
      */
     public boolean hasMore()
         throws NamingException {
-        return enum.hasMoreElements();
+        return enum2.hasMoreElements();
     }
 
 
@@ -133,12 +133,12 @@ public class NamingContextEnumeration
 
 
     public boolean hasMoreElements() {
-        return enum.hasMoreElements();
+        return enum2.hasMoreElements();
     }
 
 
     public Object nextElement() {
-        NamingEntry entry = (NamingEntry) enum.nextElement();
+        NamingEntry entry = (NamingEntry) enum2.nextElement();
         return new NameClassPair(entry.name, entry.value.getClass().getName());
     }
 

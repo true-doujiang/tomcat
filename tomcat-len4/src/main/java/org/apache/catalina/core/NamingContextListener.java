@@ -1059,9 +1059,9 @@ public class NamingContextListener
         if (resourceParameters == null)
             return;
         Hashtable params = resourceParameters.getParameters();
-        Enumeration enum = params.keys();
-        while (enum.hasMoreElements()) {
-            String paramName = (String) enum.nextElement();
+        Enumeration enum2 = params.keys();
+        while (enum2.hasMoreElements()) {
+            String paramName = (String) enum2.nextElement();
             String paramValue = (String) params.get(paramName);
             StringRefAddr refAddr = new StringRefAddr(paramName, paramValue);
             ref.add(refAddr);

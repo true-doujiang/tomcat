@@ -98,6 +98,8 @@ public class HttpSniffer extends JFrame {
 				out.println(message);
 				out.println("Host: localhost:8080");
 				out.println("Connection: Close");
+				out.println("content-Type: text/plain");
+				out.println("cookie: id=22b0f5faf2c100e9; path=/; Secure; SameSite=none");
 				out.println();
 				BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				boolean loop = true;

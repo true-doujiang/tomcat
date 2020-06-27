@@ -37,27 +37,38 @@ public class HttpServer2 {
         ServerSocket serverSocket = null;
         int port = 8080;
         try {
-            serverSocket = new ServerSocket(port, 3, InetAddress.getByName("127.0.0.1"));
+            serverSocket = new ServerSocket(port, 3000, InetAddress.getByName("127.0.0.1"));
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println(Thread.currentThread().getName() + " System.exit(1)2");
             System.exit(1);
         }
 
-        // Loop waiting for a request
+//		try {
+//			System.out.println(serverSocket.getSoTimeout());
+//			System.out.println(serverSocket.getReceiveBufferSize());
+//		} catch (IOException e1) {
+//			e1.printStackTrace();
+//		}
+        
+		// Loop waiting for a request
         while (!shutdown) {
             Socket socket = null;
             InputStream input = null;
             OutputStream output = null;
             try {
+            	System.out.println(Thread.currentThread().getName() + " serverSocket accept() 准备就绪");
                 socket = serverSocket.accept();
                 count++;
                 System.out.println(Thread.currentThread().getName() + " 新客户端链接 socket" + count + " = " + socket);
                 //Thread.sleep(1000);
 
                 input = socket.getInputStream();
+                System.out.println("input " + input + " 可读len = " + input.available());
+                
                 output = socket.getOutputStream();
-
+                System.out.println("output = " + output);
+                
                 Request request = new Request(input);
                 request.parse();
 
@@ -77,6 +88,7 @@ public class HttpServer2 {
 
                 socket.close();
                 System.out.println(Thread.currentThread().getName() + " 关闭 socket" + count + " = " + socket + "\n");
+                
                 if (request.getUri() != null) {
                     shutdown = request.getUri().equals(SHUTDOWN_COMMAND);
                 }

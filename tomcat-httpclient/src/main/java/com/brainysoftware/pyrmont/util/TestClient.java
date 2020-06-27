@@ -10,7 +10,7 @@ public class TestClient {
 
     public static void main(String[] args) {
 
-        for (int i =0; i< 800; i++) {
+        for (int i =0; i< 10; i++) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -27,8 +27,8 @@ public class TestClient {
             boolean autoflush = true;
             PrintWriter out = new PrintWriter(socket.getOutputStream(), autoflush);
             //PrimitiveServlet    ModernServlet
-            String message = "GET /aa/servlet/yy?name=yhh HTTP/1.1";
-//            String message = "GET /PrimitiveServlet?name=yhh HTTP/1.1";
+//            String message = "GET /aa/servlet/yy?name=yhh HTTP/1.1";
+            String message = "GET /servlet/PrimitiveServlet HTTP/1.1";
             out.println(message);
 
             out.println("Host: localhost:8080");

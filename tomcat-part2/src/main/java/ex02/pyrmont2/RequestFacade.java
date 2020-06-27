@@ -1,6 +1,13 @@
 package ex02.pyrmont2;
 
 
+/**
+ * 
+ * @author -小野猪-
+ * 
+ * req包装类
+ *
+ */
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.UnsupportedEncodingException;
@@ -54,7 +61,8 @@ public class RequestFacade implements ServletRequest {
         return null;
     }
 
-    public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse)
+    public AsyncContext startAsync(ServletRequest servletRequest, 
+    		ServletResponse servletResponse)
                                     throws IllegalStateException {
         return null;
     }

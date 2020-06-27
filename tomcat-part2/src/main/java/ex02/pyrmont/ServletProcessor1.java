@@ -9,6 +9,12 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+/**
+ * 
+ * @author -小野猪-
+ * Servlet请求处理
+ *
+ */
 public class ServletProcessor1 {
 
     public void process(Request request, Response response) {
@@ -53,6 +59,7 @@ public class ServletProcessor1 {
              * response向上转型ServletResponse是为了不让在Servlet里调用到request中的sendStaticResource()
              *
              * 应用程序2用了包装设计模式解决了这个问题
+             * 直接调用service() 就不用init()
              */
             servlet.service((ServletRequest) request, (ServletResponse) response);
 

@@ -1025,10 +1025,10 @@ public class WebappLoader implements Lifecycle, Loader, PropertyChangeListener, 
 
             // Looking up directory /WEB-INF/lib in the context
             try {
-                NamingEnumeration enum = resources.listBindings(libPath);
-                while (enum.hasMoreElements()) {
+                NamingEnumeration enum2 = resources.listBindings(libPath);
+                while (enum2.hasMoreElements()) {
 
-                    Binding binding = (Binding) enum.nextElement();
+                    Binding binding = (Binding) enum2.nextElement();
                     String filename = libPath + "/" + binding.getName();
                     if (!filename.endsWith(".jar")) {
                         continue;
@@ -1125,9 +1125,9 @@ public class WebappLoader implements Lifecycle, Loader, PropertyChangeListener, 
 
         try {
 
-            NamingEnumeration enum = srcDir.list("");
-            while (enum.hasMoreElements()) {
-                NameClassPair ncPair = (NameClassPair) enum.nextElement();
+            NamingEnumeration enum2 = srcDir.list("");
+            while (enum2.hasMoreElements()) {
+                NameClassPair ncPair = (NameClassPair) enum2.nextElement();
                 String name = ncPair.getName();
                 Object object = srcDir.lookup(name);
                 File currentFile = new File(destDir, name);

@@ -21,12 +21,17 @@ public class Request implements ServletRequest {
 
 
     public void parse() {
+    	
+    	System.out.println("Request --- parse()");
+    	
         // Read a set of characters from the socket
         StringBuffer request = new StringBuffer(2048);
         int i;
         byte[] buffer = new byte[2048];
         try {
+        	System.out.println("input " + input + " 可读len = " + input.available());
             i = input.read(buffer);
+            System.out.println("Request --- read len = " + i);
         } catch (IOException e) {
             e.printStackTrace();
             i = -1;
@@ -38,6 +43,7 @@ public class Request implements ServletRequest {
                 + " 解析请求------start----\n"
                 + request.toString());
         System.out.println(Thread.currentThread().getName() + " 解析请求-----end----\n\n");
+        
         uri = parseUri(request.toString());
     }
 

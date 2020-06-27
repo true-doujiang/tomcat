@@ -571,10 +571,10 @@ public class WebdavServlet
                 if ((object instanceof DirContext) && (depth > 0)) {
 
                     try {
-                        NamingEnumeration enum = resources.list(currentPath);
-                        while (enum.hasMoreElements()) {
+                        NamingEnumeration enum2 = resources.list(currentPath);
+                        while (enum2.hasMoreElements()) {
                             NameClassPair ncPair =
-                                (NameClassPair) enum.nextElement();
+                                (NameClassPair) enum2.nextElement();
                             String newPath = currentPath;
                             if (!(newPath.endsWith("/")))
                                 newPath += "/";
@@ -1667,9 +1667,9 @@ public class WebdavServlet
             }
 
             try {
-                NamingEnumeration enum = resources.list(source);
-                while (enum.hasMoreElements()) {
-                    NameClassPair ncPair = (NameClassPair) enum.nextElement();
+                NamingEnumeration enum2 = resources.list(source);
+                while (enum2.hasMoreElements()) {
+                    NameClassPair ncPair = (NameClassPair) enum2.nextElement();
                     String childDest = dest;
                     if (!childDest.equals("/"))
                         childDest += "/";
@@ -1844,17 +1844,17 @@ public class WebdavServlet
         if (lockTokenHeader == null)
             lockTokenHeader = "";
 
-        Enumeration enum = null;
+        Enumeration enum2 = null;
         try {
-            enum = resources.list(path);
+            enum2 = resources.list(path);
         } catch (NamingException e) {
             errorList.put(path, new Integer
                 (WebdavStatus.SC_INTERNAL_SERVER_ERROR));
             return;
         }
 
-        while (enum.hasMoreElements()) {
-            NameClassPair ncPair = (NameClassPair) enum.nextElement();
+        while (enum2.hasMoreElements()) {
+            NameClassPair ncPair = (NameClassPair) enum2.nextElement();
             String childName = path;
             if (!childName.equals("/"))
                 childName += "/";

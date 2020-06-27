@@ -5,7 +5,12 @@ import java.io.PrintWriter;
 public class PrimitiveServlet2 extends GenericServlet {
 
 
-    public void init(ServletConfig config) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public void init(ServletConfig config) {
         System.out.println("PrimitiveServlet2 -- init");
     }
 
