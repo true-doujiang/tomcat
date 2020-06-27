@@ -49,6 +49,7 @@ public class TestNonBlockingNIO {
         selectionKeys = selector.selectedKeys();
         it = selectionKeys.iterator();
         while (it.hasNext()) {
+        	
             selectionKey = it.next();
 
             if (selectionKey.isConnectable()) {
@@ -87,8 +88,6 @@ public class TestNonBlockingNIO {
                 System.out.println("客户端发送数据到服务端: ------->" + sendText);
                 client.register(selector, SelectionKey.OP_READ);
             }
-
-
         }
 
         try {
@@ -96,6 +95,7 @@ public class TestNonBlockingNIO {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        
         //5. 关闭通道
         sChannel.close();
         System.out.println("over");

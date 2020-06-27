@@ -22,7 +22,9 @@ public class HttpServerTest {
         try {
             //socket 使用的是TCP协议  你在这里无论什么参数都是走TCP协议传输
             Socket socket = new Socket("127.0.0.1", 8080);
+            
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            
             // HTTP/0.8  也可以  PrimitiveServlet;jsessionid=khdslah?username=uuu&info=18
             out.println("GET /servlet/PrimitiveServlet2 HTTP/1.1");
             out.println("Host: localhost:8080");
