@@ -12,3 +12,4 @@ out
 *.txt
 .project
 .classpath
+.settings
